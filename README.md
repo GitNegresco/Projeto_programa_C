@@ -7,7 +7,6 @@ Integrantes:
 - Lucas Prado Fernandes Cardozo (10771939)
 
 Descrição e principais funcionalidades:
-
 Organizar e definir os jogos, equipes com seus jogadores, pontuações, partidas e chaves do campeonato. Vai poder visualizar as chaves, equipes e a estrutura do campeonato como um todo, cadastrar os jogadores nas equipes, definir qual jogo e qual partida será realizada e montar as chaves pra um campeonato.
 
 Algoritmos implementados:
