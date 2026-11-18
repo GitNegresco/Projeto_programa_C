@@ -8,15 +8,16 @@ Integrantes:
 
 Descrição e principais funcionalidades:
 
-Organizar e definir os jogos, equipes, jogadores de cada equipe, pontuações, partidas e chaves do campeonato. Vai poder visualizar as chaves, equipes e a estrutura do campeonato como um todo, cadastrar os jogadores nas equipes, definir qual jogo e qual partida será realizada e montar as chaves pra um campeonato.
+Organizar e definir os jogos, equipes, jogadores de cada equipe, pontuações, partidas e pontos do campeonato. Vai poder visualizar as tabelas de pontuação, equipes e a estrutura do campeonato como um todo, cadastrar os jogadores nas equipes, definir qual jogo e qual partida será realizada e montar as partidas pra um campeonato, o tipo de campeonato foi escolhido por pontos corridos (mais eficientes para aplicar matrizes e buscas).
 
 Algoritmos implementados:
 
 Linguagem C (projeto todo);
 Structs e arrays(vetores) (para cadastro de jogadores, formação de partidas, definição de jogo, preenchimento de critérios);
 Validações (para todos os dados inseridos nos campos corretos ou não);
+Buscas linear, binária (para selecionar e puxar os dados pedidos);  
 Matriz ou estrutura parecida (cálculo de pontuação do time talvez);
-Busca bubble (para percorrer vetores que armazenem dados ou estatísticas do jogador);
+Ordenação bubble (para percorrer vetores que armazenem dados ou estatísticas do jogador e organiza as tabelas);
 Ir colocando aqui quando for fazendo o projeto...
 
 Banco de dados e bilbioteca/driver escolhido:
