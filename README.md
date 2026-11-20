@@ -22,11 +22,11 @@ Ir colocando aqui quando for fazendo o projeto...
 
 Banco de dados e bilbioteca/driver escolhido:
 
-Banco criado usando MySQL, e MYSQL Conncetor/C
+Banco criado usando PostgreSQL, e a biblioteca libpq.
 
 Justificativa pra escolha desse banco ou biblioteca:
 
-Informar quando for fazendo o projeto..
+O PostgreSQL pois uma maior facilidade em fazer conexões e integrações para outras plataformas, algo que permite uma futuro aprimoramento do projeto a longo prazo se for desejado, algo que o MYSQL não proporcionaria de igual forma.
 
 Estrutura de tabelas:
 
@@ -44,4 +44,4 @@ Ir colocando aqui de acordo com o andamento do projeto...
 
 Referências utilizadas na pesquisa:
 
-Ir colocando aqui no decorrer do projeto.....
+Próprio Curso de Algoritmos e Programação 2, Curso de Banco de dados, Documentação do PostgreSQL e ......
