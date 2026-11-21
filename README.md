@@ -40,8 +40,71 @@ Campeonato (nome, quant_partidas, quant_equipes, formato, FK id_partidas, FK id_
 
 Instruções de Configuração, Compilação, e Execução:
 
-Ir colocando aqui de acordo com o andamento do projeto...
+As instruções de compilação e execução estão na seção "Parte do Christian: ranking, busca, menu e persistência".
 
 Referências utilizadas na pesquisa:
 
 Próprio Curso de Algoritmos e Programação 2, Curso de Banco de dados, Documentação do PostgreSQL e ......
+
+## Parte do Christian: ranking, busca, menu e persistência
+
+O programa carrega equipes e partidas do PostgreSQL ao iniciar. Cadastros de equipes e resultados de partidas são gravados no banco; a classificação é calculada a partir dos resultados carregados.
+
+- A busca binária procura o ID da equipe em um vetor carregado em ordem crescente.
+- O ranking é organizado por Bubble Sort: pontos, vitórias, saldo, pontos pró e ID.
+- Vitória vale 3 pontos, empate vale 1 e derrota vale 0.
+- Para registrar uma partida, o menu pede o ID de um campeonato e de um jogo já cadastrados.
+- Cada partida grava uma linha em `Partidas` e duas linhas em `Resultados`, uma por equipe.
+
+### Preparar o banco
+
+1. Crie um banco PostgreSQL vazio.
+2. Execute uma vez o script `persistencia/schema.sql`.
+3. Configure a variável de ambiente `DATABASE_URL` com a conexão do seu banco. Não coloque a senha no código nem a envie no repositório.
+4. Cadastre equipes pelo programa. Antes de registrar partidas, cadastre ao menos um jogo e um campeonato nas tabelas `jogos` e `campeonato`. O campeonato precisa referenciar uma equipe existente, conforme o esquema fornecido.
+
+Exemplo de dados iniciais (depois de cadastrar uma equipe de ID `1` pelo programa):
+
+```sql
+INSERT INTO jogos (id_jogo, nome, desenvolvedora, tipo_jogo)
+VALUES (1, 'League of Legends', 'Riot Games', 'MOBA');
+
+INSERT INTO campeonato (id_campeonato, nome_campeonato, formato, fk_equipes_id_equipe)
+VALUES (1, 'Campeonato e-Sports', 'Pontos corridos', 1);
+```
+
+Exemplo de configuração no PowerShell (substitua pelos dados locais do seu banco):
+
+```powershell
+$env:DATABASE_URL = "postgresql://usuario:senha@localhost:5432/nome_do_banco"
+```
+
+### Compilar e executar
+
+É necessário ter o GCC e os arquivos de desenvolvimento do libpq instalados e disponíveis nos caminhos de include e biblioteca do compilador.
+
+Linux/macOS:
+
+```text
+gcc -std=c99 -Wall -Wextra -pedantic main.c persistencia/banco.c -lpq -o campeonato
+./campeonato
+```
+
+Windows com MinGW:
+
+```text
+gcc -std=c99 -Wall -Wextra -pedantic main.c persistencia\banco.c -lpq -o campeonato.exe
+.\campeonato.exe
+```
+
+### Regras de dados
+
+- O programa trabalha com até 100 equipes e 1000 partidas por execução.
+- Nomes digitados no menu não podem conter espaços.
+- Os placares são armazenados em `Resultados.resultado_partida` e devem ser inteiros.
+- Cada partida precisa ter exatamente dois resultados para ser carregada no ranking.
+- O código usa `stdio.h`, libpq e o cabeçalho local `persistencia/banco.h`.
+
+### Prévia visual
+
+Abra [visualizacao.html](visualizacao.html) em um navegador para ver a proposta de interface. A página é uma prévia estática e usa dados ilustrativos; não está conectada ao programa C.
