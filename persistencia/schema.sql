@@ -1,10 +1,6 @@
 -- Campeonato de E-Sports  |  schema.sql (FINAL)  |  PostgreSQL 14+
 --
--- Como rodar (a partir da pasta do arquivo):
---   createdb -U postgres campeonato_esports
---   psql -U postgres -d campeonato_esports -f schema.sql
---
--- v3: contrato de persistencia/banco.h + tabela PONTUACAO (geral por equipe)
+-- v4: contrato de persistencia/banco.h + tabela PONTUACAO (geral por equipe)
 --   - jogador tem id gerado (id_jogador);
 --   - jogador pode existir sem equipe (id_equipe NULL)
 --   - partida usa campeonato/jogo PADRAO (id 1) quando nao informados
