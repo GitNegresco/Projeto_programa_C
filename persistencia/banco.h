@@ -2,6 +2,11 @@
 #define BANCO_H
 #include "../modelos/entidade.h"
 
+#define BANCO_OK                    0
+#define BANCO_ERRO_ARGUMENTO       -1  /* parametro invalido ou sem conexao */
+#define BANCO_ERRO_BANCO           -2  /* o PostgreSQL recusou o comando */
+#define BANCO_ERRO_NAO_ENCONTRADO  -3  /* id inexistente (nenhuma linha afetada) */
+
 int  banco_conectar(void);      /* se 0 = ok, se negativo = falhou */
 void banco_desconectar(void);
 
