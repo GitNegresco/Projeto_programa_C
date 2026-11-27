@@ -69,10 +69,12 @@ int remover_equipe(Equipe equipes[], int *qtd_equipes, int id_equipe, Jogador jo
 
 int adicionar_jogador_equipe(Jogador jogadores[], int qtd_jogadores, int id_jogador, Equipe equipes[], int qtd_equipes, int id_equipe);
 
-int registrar_partida(Partida partidas[], Equipe equipes[], int id_equipeA, int id_equipeB, int placar_equipeA, int placar_equipeB, int rodada);
+int registrar_partida(Partida partidas[], Equipe equipes[], int *qtd_partidas, int qtd_equipes, int id_equipeA, int id_equipeB, int placar_equipeA, int placar_equipeB, int rodada);
 
 void listar_jogadores(Jogador jogadores[], int qtd_jogadores);
 void listar_equipes(Equipe equipes[], int qtd_equipes);
 int calcular_pontuacao(int id_equipe, Partida partidas[], int qtd_partidas);
+void montar_matriz_resultados(int matriz[MAX_EQUIPES][MAX_EQUIPES], Equipe equipes[], int qtd_equipes, Partida partidas[], int qtd_partidas);
+void exibir_matriz_resultados(int matriz[MAX_EQUIPES][MAX_EQUIPES], Equipe equipes[], int qtd_equipes);
 
 #endif
