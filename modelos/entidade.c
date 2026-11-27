@@ -71,6 +71,7 @@ int cadastrar_jogador(Jogador jogadores[], int *qtd_jogadores, char nick_jogador
     }
 
     jogadores[posicao].id_jogador = id;
+    jogadores[posicao].nome_completo[0] = '\0';
     strncpy(jogadores[posicao].nickname, nick_jogador, 49);
     jogadores[posicao].nickname[49] = '\0';
     jogadores[posicao].id_equipe = SEM_EQUIPE;

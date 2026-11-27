@@ -4,88 +4,234 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Campeonato de e-Sports</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="/app.js" defer></script>
+  <style>
+    :root { color-scheme: light; font-family: Arial, sans-serif; color: #1e293b; background: #f1f5f9; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    header { background: white; border-bottom: 1px solid #cbd5e1; }
+    .header-inner, main { width: min(1120px, calc(100% - 32px)); margin: auto; }
+    .header-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0; }
+    .brand { margin: 0 0 5px; color: #1d4ed8; font-size: 12px; font-weight: bold; letter-spacing: .14em; }
+    h1 { margin: 0; color: #0f172a; font-size: clamp(20px, 4vw, 28px); }
+    nav { display: flex; flex-wrap: wrap; gap: 16px; }
+    a { color: #1d4ed8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    main { padding: 28px 0 48px; }
+    section, .card, .summary { border: 1px solid #e2e8f0; border-radius: 12px; background: white; box-shadow: 0 1px 3px #0f172a0d; }
+    section { margin-bottom: 24px; overflow: hidden; }
+    .section-heading { padding: 18px 20px; border-bottom: 1px solid #e2e8f0; }
+    h2 { margin: 0; color: #0f172a; font-size: 19px; }
+    h3 { margin: 0; color: #0f172a; font-size: 16px; }
+    .muted, .help { color: #64748b; }
+    .muted { margin: 6px 0 0; font-size: 14px; }
+    .help { margin: 5px 0 0; font-size: 12px; }
+    .notice { margin-bottom: 18px; padding: 12px 16px; border: 1px solid #bfdbfe; border-radius: 8px; background: #eff6ff; color: #1e40af; }
+    .summary { display: grid; grid-template-columns: repeat(3, 1fr); margin-bottom: 24px; overflow: hidden; }
+    .summary div { padding: 16px 20px; }
+    .summary div + div { border-left: 1px solid #e2e8f0; }
+    .summary strong { display: block; margin-top: 5px; color: #0f172a; font-size: 22px; }
+    .grid { display: grid; gap: 16px; padding: 18px; }
+    .forms { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+    .searches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card { padding: 18px; }
+    label { display: block; margin: 12px 0 5px; font-size: 13px; font-weight: 600; }
+    input, select { width: 100%; min-height: 38px; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; color: #1e293b; font: inherit; font-size: 14px; }
+    button { margin-top: 14px; padding: 9px 14px; border: 0; border-radius: 6px; background: #1d4ed8; color: white; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+    button:hover { background: #1e40af; }
+    .form-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th, td { padding: 11px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+    thead th { background: #f8fafc; color: #475569; font-size: 12px; text-transform: uppercase; }
+    .center { text-align: center; }
+    .right { text-align: right; }
+    .empty { padding: 18px; color: #64748b; font-size: 14px; }
+    .match { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; }
+    .match:last-child { border-bottom: 0; }
+    .match strong { color: #0f172a; }
+    .badge { display: inline-block; padding: 4px 9px; border-radius: 6px; background: #f1f5f9; font-weight: bold; }
+    .notice-inline { color: #64748b; font-size: 12px; }
+    .nowrap { white-space: nowrap; }
+    footer { padding: 14px 20px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 12px; }
+    @media (max-width: 850px) { .forms { grid-template-columns: 1fr; } }
+    @media (max-width: 620px) {
+      .searches { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: 1fr; }
+      .summary div + div { border-top: 1px solid #e2e8f0; border-left: 0; }
+      .header-inner { align-items: flex-start; }
+    }
+  </style>
 </head>
-<body class="min-h-screen bg-slate-100 text-slate-800">
-  <header class="border-b border-slate-200 bg-white">
-    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-5">
+<body>
+  <header>
+    <div class="header-inner">
       <div>
-        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600">CAMPEONATO DE E-SPORTS</p>
-        <h1 class="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">ALGORITMOS E PROGRAMAÇÃO II</h1>
+        <p class="brand">CAMPEONATO DE E-SPORTS</p>
+        <h1>ALGORITMOS E PROGRAMAÇÃO II</h1>
       </div>
+      <nav aria-label="Navegação principal">
+        <a href="#cadastros">Cadastros</a>
+        <a href="#ranking">Ranking</a>
+        <a href="#matriz">Matriz</a>
+        <a href="#partidas">Partidas</a>
+      </nav>
     </div>
   </header>
-
-  <main class="mx-auto max-w-6xl px-5 py-8">
-    <section aria-label="Resumo do campeonato" class="mb-6 grid overflow-hidden rounded-xl border border-slate-200 bg-white sm:grid-cols-3">
-      <div class="px-5 py-4">
-        <p class="text-sm text-slate-500">Equipes</p>
-        <p id="teams-count" class="mt-1 text-xl font-semibold text-slate-900">—</p>
-      </div>
-      <div class="border-t border-slate-200 px-5 py-4 sm:border-l sm:border-t-0">
-        <p class="text-sm text-slate-500">Partidas registradas</p>
-        <p id="matches-count" class="mt-1 text-xl font-semibold text-slate-900">—</p>
-      </div>
-      <div class="border-t border-slate-200 px-5 py-4 sm:border-l sm:border-t-0">
-        <p class="text-sm text-slate-500">Rodada mais recente</p>
-        <p id="latest-round" class="mt-1 text-xl font-semibold text-slate-900">—</p>
-      </div>
-    </section>
-
-    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(280px,.8fr)]">
-      <section aria-labelledby="ranking-titulo" class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div class="flex flex-wrap items-end justify-between gap-2 border-b border-slate-200 px-5 py-4">
-          <div>
-            <h2 id="ranking-titulo" class="text-lg font-semibold text-slate-900">Ranking de equipes</h2>
-            <p class="mt-1 text-sm text-slate-500">Pontuação calculada pelos resultados das partidas: vitória 3, empate 1</p>
-          </div>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full min-w-[600px] text-left text-sm">
-            <thead class="bg-slate-50 text-xs font-medium uppercase tracking-wide text-slate-500">
-              <tr>
-                <th scope="col" class="px-5 py-3">Pos.</th>
-                <th scope="col" class="px-3 py-3">Equipe</th>
-                <th scope="col" class="px-3 py-3 text-center">J</th>
-                <th scope="col" class="px-3 py-3 text-center">V</th>
-                <th scope="col" class="px-3 py-3 text-center">E</th>
-                <th scope="col" class="px-3 py-3 text-center">D</th>
-                <th scope="col" class="px-5 py-3 text-right">PTS</th>
-              </tr>
-            </thead>
-            <tbody id="ranking-body" class="divide-y divide-slate-100">
-              <tr>
-                <td colspan="7" class="px-5 py-4 text-slate-500">Carregando ranking...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="border-t border-slate-200 px-5 py-3 text-xs text-slate-500">
-          J: jogos · V: vitórias · E: empates · D: derrotas · PTS: pontos
-        </p>
-      </section>
-
-      <section aria-labelledby="partidas-titulo" class="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div class="border-b border-slate-200 px-5 py-4">
-          <h2 id="partidas-titulo" class="text-lg font-semibold text-slate-900">Resultados recentes</h2>
-          <p class="mt-1 text-sm text-slate-500">Partida e resultados por equipe</p>
-        </div>
-        <div id="recent-matches" class="divide-y divide-slate-100" aria-live="polite">
-          <p class="px-5 py-4 text-sm text-slate-500">Carregando partidas...</p>
-        </div>
-      </section>
+  <main>
+    {{NOTICE}}
+    <div class="summary" aria-label="Resumo do campeonato">
+      <div>Equipes<strong>{{TEAM_COUNT}}</strong></div>
+      <div>Partidas registradas<strong>{{MATCH_COUNT}}</strong></div>
+      <div>Rodada mais recente<strong>{{LATEST_ROUND}}</strong></div>
     </div>
 
-    <section aria-labelledby="modelo-titulo" class="mt-6 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
-      <h2 id="modelo-titulo" class="text-lg font-semibold text-slate-900">Dados do modelo</h2>
-      <div class="mt-3 grid gap-3 text-sm sm:grid-cols-3">
-        <p><span class="font-medium text-slate-800">Equipes</span><br><span class="text-slate-500">Nome e jogadores vinculados</span></p>
-        <p><span class="font-medium text-slate-800">Partidas</span><br><span class="text-slate-500">Rodada, campeonato e jogo</span></p>
-        <p><span class="font-medium text-slate-800">Resultados</span><br><span class="text-slate-500">Placar, kills, mortes, dano e cura por equipe</span></p>
+    <section id="cadastros">
+      <div class="section-heading">
+        <h2>Gerenciar campeonato</h2>
+        <p class="muted">Os dados são salvos no PostgreSQL pelo servidor em C. A pontuação é atualizada pelo gatilho do banco.</p>
+      </div>
+      <div class="grid forms">
+        <form class="card" action="/" method="post">
+          <h3>Cadastrar equipe</h3>
+          <p class="help">O identificador é gerado pelo servidor.</p>
+          <input type="hidden" name="action" value="team">
+          <label for="team-name">Nome da equipe</label>
+          <input id="team-name" name="name" maxlength="100" required>
+          <button type="submit">Cadastrar equipe</button>
+        </form>
+
+        <form class="card" action="/" method="post">
+          <h3>Cadastrar jogador</h3>
+          <p class="help">A equipe é opcional. O schema atual usa CPF do tipo INT.</p>
+          <input type="hidden" name="action" value="player">
+          <label for="player-cpf">CPF / identificador (até 10 dígitos)</label>
+          <input id="player-cpf" name="cpf" type="number" min="1" max="2147483647" step="1" required>
+          <label for="player-full-name">Nome completo</label>
+          <input id="player-full-name" name="full_name" maxlength="100" required>
+          <label for="player-nickname">Apelido</label>
+          <input id="player-nickname" name="nickname" maxlength="50" required>
+          <label for="player-steam">Conta Steam (opcional)</label>
+          <input id="player-steam" name="steam" maxlength="100">
+          <label for="player-phone">Telefone (somente números, opcional)</label>
+          <input id="player-phone" name="phone" type="text" inputmode="numeric" pattern="[0-9]{1,20}" maxlength="20">
+          <label for="player-team">Equipe</label>
+          <select id="player-team" name="team_id">
+            <option value="-1">Sem equipe</option>
+            {{TEAM_OPTIONS}}
+          </select>
+          <button type="submit">Cadastrar jogador</button>
+        </form>
+
+        <form class="card" action="/" method="post">
+          <h3>Registrar partida e resultados</h3>
+          <p class="help">Cadastre jogos e campeonatos no banco antes de registrar partidas.</p>
+          <input type="hidden" name="action" value="match">
+          <label for="match-round">Rodada</label>
+          <input id="match-round" name="round" type="number" min="1" step="1" required>
+          <label for="match-championship">Campeonato</label>
+          <select id="match-championship" name="championship_id" required>
+            <option value="">Selecione um campeonato</option>
+            {{CHAMPIONSHIP_OPTIONS}}
+          </select>
+          <label for="match-game">Jogo</label>
+          <select id="match-game" name="game_id" required>
+            <option value="">Selecione um jogo</option>
+            {{GAME_OPTIONS}}
+          </select>
+          <label for="match-team-a">Equipe A</label>
+          <select id="match-team-a" name="team_a" required>
+            <option value="">Selecione a equipe A</option>
+            {{TEAM_OPTIONS}}
+          </select>
+          <label for="match-score-a">Placar da equipe A</label>
+          <input id="match-score-a" name="score_a" type="number" min="0" max="99999999.99" step="0.01" required>
+          <label for="match-team-b">Equipe B</label>
+          <select id="match-team-b" name="team_b" required>
+            <option value="">Selecione a equipe B</option>
+            {{TEAM_OPTIONS}}
+          </select>
+          <label for="match-score-b">Placar da equipe B</label>
+          <input id="match-score-b" name="score_b" type="number" min="0" max="99999999.99" step="0.01" required>
+          <button type="submit">Salvar partida</button>
+        </form>
       </div>
     </section>
 
+    <section aria-label="Pesquisa de equipes e jogadores">
+      <div class="section-heading">
+        <h2>Pesquisar equipes e jogadores</h2>
+        <p class="muted">A pesquisa é processada pelo programa em C.</p>
+      </div>
+      <div class="grid searches">
+        <form class="card" action="/" method="get">
+          <h3>Pesquisar equipes</h3>
+          <label for="team-search">Nome ou ID</label>
+          <input id="team-search" name="qteam" value="{{TEAM_SEARCH}}" maxlength="100">
+          <button type="submit">Pesquisar equipes</button>
+          <div class="scroll">
+            <table><thead><tr><th>ID</th><th>Equipe</th><th>Jogadores</th></tr></thead>
+              <tbody>{{TEAM_ROWS}}</tbody></table>
+          </div>
+        </form>
+        <form class="card" action="/" method="get">
+          <h3>Pesquisar jogadores</h3>
+          <label for="player-search">Nome, apelido ou CPF</label>
+          <input id="player-search" name="qplayer" value="{{PLAYER_SEARCH}}" maxlength="100">
+          <button type="submit">Pesquisar jogadores</button>
+          <div class="scroll">
+            <table><thead><tr><th>CPF/ID</th><th>Apelido</th><th>Equipe</th></tr></thead>
+              <tbody>{{PLAYER_ROWS}}</tbody></table>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="ranking">
+      <div class="section-heading">
+        <h2>Ranking de equipes</h2>
+        <p class="muted">Vitória vale 3 pontos; empate vale 1. Ordenação por pontos, vitórias, saldo, pontos pró e ID.</p>
+        <form action="/" method="get" class="form-row" style="max-width: 390px; margin-top: 12px">
+          <label for="ranking-sort">Ordenar por
+            <select id="ranking-sort" name="sort">
+              <option value="classification" {{SORT_CLASSIFICATION}}>Classificação</option>
+              <option value="points" {{SORT_POINTS}}>Pontuação</option>
+              <option value="wins" {{SORT_WINS}}>Vitórias</option>
+              <option value="balance" {{SORT_BALANCE}}>Saldo</option>
+              <option value="id" {{SORT_ID}}>ID da equipe</option>
+            </select>
+          </label>
+          <button type="submit">Ordenar</button>
+        </form>
+      </div>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Pos.</th><th>Equipe</th><th class="center">J</th><th class="center">V</th><th class="center">E</th><th class="center">D</th><th class="right">PTS</th><th class="right">Saldo</th></tr></thead>
+          <tbody>{{RANKING_ROWS}}</tbody>
+        </table>
+      </div>
+      <footer>J: jogos · V: vitórias · E: empates · D: derrotas · PTS: pontos</footer>
+    </section>
+
+    <section id="matriz">
+      <div class="section-heading">
+        <h2>Matriz de resultados</h2>
+        <p class="muted">Cada linha mostra os placares da equipe contra a equipe indicada na coluna.</p>
+      </div>
+      <div class="scroll">
+        <table>
+          <thead>{{MATRIX_HEAD}}</thead>
+          <tbody>{{MATRIX_ROWS}}</tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="partidas">
+      <div class="section-heading">
+        <h2>Resultados recentes</h2>
+        <p class="muted">Partida e placares registrados por equipe</p>
+      </div>
+      {{MATCH_ROWS}}
+    </section>
   </main>
 </body>
 </html>
