@@ -27,6 +27,7 @@
 
 typedef struct {
     int id_jogador;
+    char nome_completo[101];
     char nickname[50];
     int id_equipe;
 } Jogador;

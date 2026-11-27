@@ -338,9 +338,17 @@ static int carregar_equipes(Equipe equipes[], int capacidade, int *quantidade)
 
 static int carregar_jogadores(Jogador jogadores[], int capacidade, int *quantidade)
 {
+<<<<<<< HEAD
     PGresult *resultado = executar(
         "SELECT id_jogador, nickname, id_equipe FROM jogadores ORDER BY id_jogador",
         0, NULL, PGRES_TUPLES_OK, "Erro ao carregar jogadores");
+=======
+    const char *sql =
+        "SELECT cpf, COALESCE(apelido, ''), COALESCE(nome_completo, ''), "
+        "COALESCE(fk_equipes_id_equipe, -1) "
+        "FROM jogadores ORDER BY cpf";
+    PGresult *resultado = PQexec(conexao, sql);
+>>>>>>> c1570ca (arrumei uns baguio)
     int linhas;
     int i;
 
@@ -356,6 +364,7 @@ static int carregar_jogadores(Jogador jogadores[], int capacidade, int *quantida
     }
 
     for (i = 0; i < linhas; i++) {
+<<<<<<< HEAD
         jogadores[i].id_jogador = atoi(PQgetvalue(resultado, i, 0));
         snprintf(jogadores[i].nickname, sizeof(jogadores[i].nickname),
                  "%s", PQgetvalue(resultado, i, 1));
@@ -363,6 +372,24 @@ static int carregar_jogadores(Jogador jogadores[], int capacidade, int *quantida
         jogadores[i].id_equipe = PQgetisnull(resultado, i, 2)
                                      ? BANCO_SEM_EQUIPE
                                      : atoi(PQgetvalue(resultado, i, 2));
+=======
+        const char *apelido = PQgetvalue(resultado, i, 1);
+        const char *nome_completo = PQgetvalue(resultado, i, 2);
+        if (strlen(apelido) >= sizeof(jogadores[i].nickname)) {
+            fprintf(stderr, "O apelido de um jogador excede o limite suportado.\n");
+            PQclear(resultado);
+            return 0;
+        }
+        if (strlen(nome_completo) >= sizeof(jogadores[i].nome_completo)) {
+            fprintf(stderr, "O nome de um jogador excede o limite suportado.\n");
+            PQclear(resultado);
+            return 0;
+        }
+        jogadores[i].id_jogador = atoi(PQgetvalue(resultado, i, 0));
+        strcpy(jogadores[i].nickname, apelido);
+        strcpy(jogadores[i].nome_completo, nome_completo);
+        jogadores[i].id_equipe = atoi(PQgetvalue(resultado, i, 3));
+>>>>>>> c1570ca (arrumei uns baguio)
     }
 
     *quantidade = linhas;
@@ -397,6 +424,234 @@ static int carregar_partidas(Partida partidas[], int capacidade, int *quantidade
         return BANCO_ERRO_ARGUMENTO;
     }
 
+<<<<<<< HEAD
+=======
+    *quantidade = qtd;
+    PQclear(resultado);
+    return 1;
+}
+
+int banco_salvar_equipe(PGconn *conexao, const char nome[], int *id_equipe)
+{
+    PGresult *resultado;
+    char id_texto[32];
+    const char *parametros[2];
+
+    if (!executar_comando(conexao, "BEGIN") ||
+        !executar_comando(conexao, "LOCK TABLE equipes IN EXCLUSIVE MODE")) {
+        executar_comando(conexao, "ROLLBACK");
+        return 0;
+    }
+
+    resultado = PQexec(conexao,
+                       "SELECT COALESCE(MAX(id_equipe), 0) + 1 FROM equipes");
+    if (resultado == NULL ||
+        !resultado_tuplas_ok(conexao, resultado, "gerar ID da equipe")) {
+        if (resultado != NULL) PQclear(resultado);
+        executar_comando(conexao, "ROLLBACK");
+        return 0;
+    }
+    snprintf(id_texto, sizeof(id_texto), "%s", PQgetvalue(resultado, 0, 0));
+    PQclear(resultado);
+
+    parametros[0] = id_texto;
+    parametros[1] = nome;
+    resultado = PQexecParams(
+        conexao,
+        "INSERT INTO equipes (id_equipe, nome_equipe) VALUES ($1, $2)",
+        2, NULL, parametros, NULL, NULL, 0);
+    if (resultado == NULL ||
+        PQresultStatus(resultado) != PGRES_COMMAND_OK) {
+        fprintf(stderr, "Erro ao cadastrar equipe: %s", PQerrorMessage(conexao));
+        if (resultado != NULL) PQclear(resultado);
+        executar_comando(conexao, "ROLLBACK");
+        return 0;
+    }
+    PQclear(resultado);
+
+    if (!executar_comando(conexao, "COMMIT")) {
+        executar_comando(conexao, "ROLLBACK");
+        return 0;
+    }
+    *id_equipe = atoi(id_texto);
+    return 1;
+}
+
+int banco_salvar_jogador(PGconn *conexao, int cpf,
+                         const char nome_completo[], const char apelido[],
+                         const char conta_steam[], const char telefone[],
+                         int id_equipe)
+{
+    PGresult *resultado;
+    char cpf_texto[32];
+    char equipe_texto[32];
+    const char *parametros[6];
+
+    snprintf(cpf_texto, sizeof(cpf_texto), "%d", cpf);
+    if (id_equipe != SEM_EQUIPE) {
+        snprintf(equipe_texto, sizeof(equipe_texto), "%d", id_equipe);
+    }
+
+    parametros[0] = cpf_texto;
+    parametros[1] = nome_completo;
+    parametros[2] = apelido;
+    parametros[3] = conta_steam[0] == '\0' ? NULL : conta_steam;
+    parametros[4] = telefone[0] == '\0' ? NULL : telefone;
+    parametros[5] = id_equipe == SEM_EQUIPE ? NULL : equipe_texto;
+    resultado = PQexecParams(
+        conexao,
+        "INSERT INTO jogadores "
+        "(cpf, nome_completo, apelido, conta_steam, telefone, "
+        "fk_equipes_id_equipe) VALUES ($1, $2, $3, $4, $5, $6)",
+        6, NULL, parametros, NULL, NULL, 0);
+    if (resultado == NULL ||
+        PQresultStatus(resultado) != PGRES_COMMAND_OK) {
+        fprintf(stderr, "Erro ao cadastrar jogador: %s",
+                PQerrorMessage(conexao));
+        if (resultado != NULL) PQclear(resultado);
+        return 0;
+    }
+    PQclear(resultado);
+    return 1;
+}
+
+int banco_salvar_partida(PGconn *conexao, Partida *partida)
+{
+    PGresult *resultado;
+    char id_partida_texto[32];
+    char id_resultado_a_texto[32];
+    char id_resultado_b_texto[32];
+    char rodada_texto[32];
+    char campeonato_texto[32];
+    char jogo_texto[32];
+    char equipe_a_texto[32];
+    char equipe_b_texto[32];
+    char placar_a_texto[64];
+    char placar_b_texto[64];
+    const char *parametros[6];
+
+    if (!executar_comando(conexao, "BEGIN") ||
+        !executar_comando(conexao,
+                          "LOCK TABLE partidas, resultados IN EXCLUSIVE MODE")) {
+        executar_comando(conexao, "ROLLBACK");
+        return 0;
+    }
+
+    resultado = PQexec(
+        conexao,
+        "SELECT COALESCE(MAX(id_partida), 0) + 1, "
+        "(SELECT COALESCE(MAX(id_resultado), 0) + 1 FROM resultados) "
+        "FROM partidas");
+    if (resultado == NULL ||
+        !resultado_tuplas_ok(conexao, resultado, "gerar IDs da partida")) {
+        if (resultado != NULL) PQclear(resultado);
+        executar_comando(conexao, "ROLLBACK");
+        return 0;
+    }
+    snprintf(id_partida_texto, sizeof(id_partida_texto), "%s",
+             PQgetvalue(resultado, 0, 0));
+    snprintf(id_resultado_a_texto, sizeof(id_resultado_a_texto), "%s",
+             PQgetvalue(resultado, 0, 1));
+    PQclear(resultado);
+    {
+        long id_resultado_b = strtol(id_resultado_a_texto, NULL, 10) + 1;
+        snprintf(id_resultado_b_texto, sizeof(id_resultado_b_texto), "%ld",
+                 id_resultado_b);
+    }
+
+    snprintf(rodada_texto, sizeof(rodada_texto), "%d", partida->rodada);
+    snprintf(campeonato_texto, sizeof(campeonato_texto), "%d",
+             partida->id_campeonato);
+    snprintf(jogo_texto, sizeof(jogo_texto), "%d", partida->id_jogo);
+    parametros[0] = id_partida_texto;
+    parametros[1] = rodada_texto;
+    parametros[2] = campeonato_texto;
+    parametros[3] = jogo_texto;
+    resultado = PQexecParams(
+        conexao,
+        "INSERT INTO partidas (id_partida, num_rodada, "
+        "fk_campeonato_id_campeonato, fk_jogos_id_jogo) "
+        "VALUES ($1, $2, $3, $4)",
+        4, NULL, parametros, NULL, NULL, 0);
+    if (resultado == NULL ||
+        PQresultStatus(resultado) != PGRES_COMMAND_OK) {
+        fprintf(stderr, "Erro ao cadastrar partida: %s", PQerrorMessage(conexao));
+        if (resultado != NULL) PQclear(resultado);
+        executar_comando(conexao, "ROLLBACK");
+        return 0;
+    }
+    PQclear(resultado);
+
+    snprintf(equipe_a_texto, sizeof(equipe_a_texto), "%d",
+             partida->id_equipeA);
+    snprintf(equipe_b_texto, sizeof(equipe_b_texto), "%d",
+             partida->id_equipeB);
+    snprintf(placar_a_texto, sizeof(placar_a_texto), "%.17g",
+             partida->placarA);
+    snprintf(placar_b_texto, sizeof(placar_b_texto), "%.17g",
+             partida->placarB);
+    parametros[0] = id_resultado_a_texto;
+    parametros[1] = placar_a_texto;
+    parametros[2] = equipe_a_texto;
+    parametros[3] = id_partida_texto;
+    resultado = PQexecParams(
+        conexao,
+        "INSERT INTO resultados (id_resultado, resultado_partida, "
+        "fk_equipes_id_equipe, fk_partidas_id_partida) "
+        "VALUES ($1, $2, $3, $4)",
+        4, NULL, parametros, NULL, NULL, 0);
+    if (resultado == NULL ||
+        PQresultStatus(resultado) != PGRES_COMMAND_OK) {
+        fprintf(stderr, "Erro ao gravar resultado da equipe A: %s",
+                PQerrorMessage(conexao));
+        if (resultado != NULL) PQclear(resultado);
+        executar_comando(conexao, "ROLLBACK");
+        return 0;
+    }
+    PQclear(resultado);
+
+    parametros[0] = id_resultado_b_texto;
+    parametros[1] = placar_b_texto;
+    parametros[2] = equipe_b_texto;
+    resultado = PQexecParams(
+        conexao,
+        "INSERT INTO resultados (id_resultado, resultado_partida, "
+        "fk_equipes_id_equipe, fk_partidas_id_partida) "
+        "VALUES ($1, $2, $3, $4)",
+        4, NULL, parametros, NULL, NULL, 0);
+    if (resultado == NULL ||
+        PQresultStatus(resultado) != PGRES_COMMAND_OK) {
+        fprintf(stderr, "Erro ao gravar resultado da equipe B: %s",
+                PQerrorMessage(conexao));
+        if (resultado != NULL) PQclear(resultado);
+        executar_comando(conexao, "ROLLBACK");
+        return 0;
+    }
+    PQclear(resultado);
+
+    if (!executar_comando(conexao, "COMMIT")) {
+        executar_comando(conexao, "ROLLBACK");
+        return 0;
+    }
+    partida->id_partida = atoi(id_partida_texto);
+    return 1;
+}
+
+static int listar_tabela(PGconn *conexao, const char *sql,
+                         const char *titulo, int coluna_nome)
+{
+    PGresult *resultado = PQexec(conexao, sql);
+    int linhas;
+    int i;
+
+    if (resultado == NULL ||
+        !resultado_tuplas_ok(conexao, resultado, titulo)) {
+        if (resultado != NULL) PQclear(resultado);
+        return -1;
+    }
+    linhas = PQntuples(resultado);
+    printf("\n--- %s ---\n", titulo);
+>>>>>>> c1570ca (arrumei uns baguio)
     for (i = 0; i < linhas; i++) {
         partidas[i].id_partida    = atoi(PQgetvalue(resultado, i, 0));
         partidas[i].rodada        = atoi(PQgetvalue(resultado, i, 1));
