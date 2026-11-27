@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Campeonato de e-Sports</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/app.js" defer></script>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-800">
+  <header class="border-b border-slate-200 bg-white">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-5">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600">CAMPEONATO DE E-SPORTS</p>
+        <h1 class="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">ALGORITMOS E PROGRAMAÇÃO II</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-5 py-8">
+    <section aria-label="Resumo do campeonato" class="mb-6 grid overflow-hidden rounded-xl border border-slate-200 bg-white sm:grid-cols-3">
+      <div class="px-5 py-4">
+        <p class="text-sm text-slate-500">Equipes</p>
+        <p id="teams-count" class="mt-1 text-xl font-semibold text-slate-900">—</p>
+      </div>
+      <div class="border-t border-slate-200 px-5 py-4 sm:border-l sm:border-t-0">
+        <p class="text-sm text-slate-500">Partidas registradas</p>
+        <p id="matches-count" class="mt-1 text-xl font-semibold text-slate-900">—</p>
+      </div>
+      <div class="border-t border-slate-200 px-5 py-4 sm:border-l sm:border-t-0">
+        <p class="text-sm text-slate-500">Rodada mais recente</p>
+        <p id="latest-round" class="mt-1 text-xl font-semibold text-slate-900">—</p>
+      </div>
+    </section>
+
+    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(280px,.8fr)]">
+      <section aria-labelledby="ranking-titulo" class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex flex-wrap items-end justify-between gap-2 border-b border-slate-200 px-5 py-4">
+          <div>
+            <h2 id="ranking-titulo" class="text-lg font-semibold text-slate-900">Ranking de equipes</h2>
+            <p class="mt-1 text-sm text-slate-500">Pontuação calculada pelos resultados das partidas: vitória 3, empate 1</p>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[600px] text-left text-sm">
+            <thead class="bg-slate-50 text-xs font-medium uppercase tracking-wide text-slate-500">
+              <tr>
+                <th scope="col" class="px-5 py-3">Pos.</th>
+                <th scope="col" class="px-3 py-3">Equipe</th>
+                <th scope="col" class="px-3 py-3 text-center">J</th>
+                <th scope="col" class="px-3 py-3 text-center">V</th>
+                <th scope="col" class="px-3 py-3 text-center">E</th>
+                <th scope="col" class="px-3 py-3 text-center">D</th>
+                <th scope="col" class="px-5 py-3 text-right">PTS</th>
+              </tr>
+            </thead>
+            <tbody id="ranking-body" class="divide-y divide-slate-100">
+              <tr>
+                <td colspan="7" class="px-5 py-4 text-slate-500">Carregando ranking...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="border-t border-slate-200 px-5 py-3 text-xs text-slate-500">
+          J: jogos · V: vitórias · E: empates · D: derrotas · PTS: pontos
+        </p>
+      </section>
+
+      <section aria-labelledby="partidas-titulo" class="rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="border-b border-slate-200 px-5 py-4">
+          <h2 id="partidas-titulo" class="text-lg font-semibold text-slate-900">Resultados recentes</h2>
+          <p class="mt-1 text-sm text-slate-500">Partida e resultados por equipe</p>
+        </div>
+        <div id="recent-matches" class="divide-y divide-slate-100" aria-live="polite">
+          <p class="px-5 py-4 text-sm text-slate-500">Carregando partidas...</p>
+        </div>
+      </section>
+    </div>
+
+    <section aria-labelledby="modelo-titulo" class="mt-6 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+      <h2 id="modelo-titulo" class="text-lg font-semibold text-slate-900">Dados do modelo</h2>
+      <div class="mt-3 grid gap-3 text-sm sm:grid-cols-3">
+        <p><span class="font-medium text-slate-800">Equipes</span><br><span class="text-slate-500">Nome e jogadores vinculados</span></p>
+        <p><span class="font-medium text-slate-800">Partidas</span><br><span class="text-slate-500">Rodada, campeonato e jogo</span></p>
+        <p><span class="font-medium text-slate-800">Resultados</span><br><span class="text-slate-500">Placar, kills, mortes, dano e cura por equipe</span></p>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

@@ -16,4 +16,10 @@ int buscar_equipe_por_nome(
     const char *nome_equipe
 );
 
+int buscar_equipe_por_id(
+    const Equipe equipes[],
+    int qtd_equipes,
+    int id_equipe
+);
+
 #endif

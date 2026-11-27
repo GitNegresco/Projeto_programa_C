@@ -41,3 +41,32 @@ int buscar_equipe_por_nome(
     return ERRO_NAO_ENCONTRADO;
 }
 
+/* A busca binaria exige que equipes esteja ordenado por id_equipe. */
+int buscar_equipe_por_id(
+    const Equipe equipes[],
+    int qtd_equipes,
+    int id_equipe
+) {
+    int inicio = 0;
+    int fim = qtd_equipes - 1;
+
+    if ((equipes == NULL && qtd_equipes > 0) || qtd_equipes < 0) {
+        return ERRO_INVALIDO;
+    }
+
+    while (inicio <= fim) {
+        int meio = inicio + (fim - inicio) / 2;
+
+        if (equipes[meio].id_equipe == id_equipe) {
+            return meio;
+        }
+        if (equipes[meio].id_equipe < id_equipe) {
+            inicio = meio + 1;
+        } else {
+            fim = meio - 1;
+        }
+    }
+
+    return ERRO_NAO_ENCONTRADO;
+}
+
