@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 # Projeto de Campeonato E-Sports
-=======
-# Projeto Integrador — Campeonato de e-Sports
->>>>>>> c1570ca (arrumei uns baguio)
 
 ## Integrantes
 
@@ -11,7 +7,6 @@
 - João Manoel Pessoa Carneiro (10771808)
 - Lucas Prado Fernandes Cardozo (10771939)
 
-<<<<<<< HEAD
 ## Descrição e principais funcionalidades
 
 O projeto consiste no desenvolvimento de um sistema para organizar e gerenciar um campeonato de E-Sports no formato de pontos corridos, podendo ser escolhido o jogo e cadastrados e montadas as equipes no próprio sistema.
@@ -92,36 +87,9 @@ Linux:
 export PGUSER=postgres
 export PGPASSWORD=sua_senha
 export PGDATABASE=Campeonato_Esports
-=======
-## Funcionalidades
-
-- Cadastrar e pesquisar equipes e jogadores.
-- Registrar partidas com duas equipes, placares, rodada, campeonato e jogo.
-- Calcular pontos: vitória vale 3; empate vale 1; derrota vale 0.
-- Ordenar e exibir a classificação, incluindo jogos, vitórias, empates, derrotas e saldo.
-- Mostrar a matriz de resultados entre as equipes.
-- Persistir os dados no PostgreSQL usando libpq.
-- Usar busca binária por ID de equipe e Bubble Sort para a classificação.
-
-A interface do navegador é HTML estático, sem JavaScript. O servidor HTTP, as validações, a comunicação com o banco, as pesquisas e os cálculos são feitos em C.
-
-## Banco de dados
-
-Cada integrante precisa criar seu próprio banco PostgreSQL chamado `Campeonato_Esports` e executar uma vez `persistencia/schema.sql`. O banco local não é compartilhado pelo Git.
-
-Decisões do modelo:
-
-- Jogador sem equipe é gravado com `fk_equipes_id_equipe = NULL`.
-- O menor `id_resultado` de uma partida representa a equipe A; o seguinte representa a equipe B.
-- `Pontuacao` é mantida pelo gatilho definido em `schema.sql`.
-- O campo `Jogadores.CPF` está definido como `INT`; por isso a interface aceita valores até `2147483647`. Para armazenar CPFs brasileiros de 11 dígitos, o modelo precisaria ser alterado para `BIGINT` ou texto e o banco recriado/migrado.
-
-Antes de registrar partidas, cadastre ao menos um jogo e um campeonato no banco. O campeonato precisa referenciar uma equipe existente:
->>>>>>> c1570ca (arrumei uns baguio)
 
 Se o PostgreSQL usar outra porta, defina também PGPORT. (no caso usamos a 5432 msm)
 
-<<<<<<< HEAD
 5. Compilar
 Substitua <arquivos .c do projeto> pelos arquivos-fonte do projeto, incluindo persistencia/banco.c, e ajuste o número da versão do PostgreSQL se necessário. (obs o MinGW-w64 foi instalado a parte, caso não tenha instale-o também)
 Windows (MinGW-w64 / MSYS2 UCRT64):
@@ -133,57 +101,9 @@ gcc <arquivos .c do projeto> -o campeonato -I$(pg_config --includedir) -lpq
 6. Executar
 Windows (PowerShell): o programa precisa encontrar a libpq.dll.
 $env:Path += ";C:\Program Files\PostgreSQL\19\bin"
-=======
-INSERT INTO campeonato
-    (id_campeonato, nome_campeonato, formato, fk_equipes_id_equipe)
-VALUES (1, 'Campeonato e-Sports', 'Pontos corridos', 1);
-```
-
-## Configuração da conexão
-
-Instale PostgreSQL, GCC/MinGW e os arquivos de desenvolvimento do libpq. Configure as variáveis no mesmo terminal em que vai iniciar o programa. No PowerShell:
-
-```powershell
-$env:PGHOST = "localhost"
-$env:PGPORT = "5432"
-$env:PGDATABASE = "Campeonato_Esports"
-$env:PGUSER = "postgres"
-$env:PGPASSWORD = Read-Host "Senha local do PostgreSQL"
-```
-
-A senha fica no ambiente local: não a coloque no código nem a envie ao Git.
-
-## Executar a interface web com servidor em C
-
-No PowerShell, na pasta raiz do projeto:
-
-```powershell
-gcc -std=c99 -Wall -Wextra -pedantic web_server.c algoritmos\busca.c algoritmos\ordenacao.c modelos\entidade.c persistencia\banco.c -lpq -lws2_32 -lm -o campeonato_web.exe
-.\campeonato_web.exe
-```
-
-Abra `http://127.0.0.1:3000`. O servidor usa a porta 3000 por padrão; ela pode ser alterada pela variável `PORT`. Mantenha `visualizacao.html` na pasta atual ao iniciar o executável, pois o servidor lê esse arquivo para montar a página.
-
-No Linux:
-
-```sh
-gcc -std=c99 -Wall -Wextra -pedantic web_server.c algoritmos/busca.c algoritmos/ordenacao.c modelos/entidade.c persistencia/banco.c -lpq -lm -o campeonato_web
-./campeonato_web
-```
-
-O programa escuta apenas em `127.0.0.1`. Os formulários HTML são enviados ao servidor C, que grava e consulta os dados no PostgreSQL. Não é necessário Node.js, npm ou JavaScript.
-
-## Executar o programa de terminal
-
-Windows com MinGW:
-
-```powershell
-gcc -std=c99 -Wall -Wextra -pedantic main.c algoritmos\busca.c algoritmos\ordenacao.c modelos\entidade.c persistencia\banco.c -lpq -lm -o campeonato.exe
->>>>>>> c1570ca (arrumei uns baguio)
 .\campeonato.exe
 
 Linux:
-<<<<<<< HEAD
 ./campeonato
 
 ## Testes
@@ -204,10 +124,3 @@ Os resultados serão registrados após a execução dos testes no programa integ
 - Curso de Banco de dados.
 - Documentação oficial do PostgreSQL.
 - Documentação oficial do libpq.
-=======
-
-```sh
-gcc -std=c99 -Wall -Wextra -pedantic main.c algoritmos/busca.c algoritmos/ordenacao.c modelos/entidade.c persistencia/banco.c -lpq -lm -o campeonato
-./campeonato
-```
->>>>>>> c1570ca (arrumei uns baguio)
