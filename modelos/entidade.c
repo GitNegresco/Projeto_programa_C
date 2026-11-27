@@ -14,6 +14,13 @@ int banco_remover_jogador(int id) {
     return OK;
 }
 
+/*TODO: trocar pelo banco real*/
+int banco_inserir_equipe(char nome_equipe[50]) {
+    static int id = 0;
+    id++;
+    return id;
+}
+
 void listar_jogadores(Jogador jogadores[], int qtd_jogadores) {
     if (qtd_jogadores == 0) {
         printf("Nao ha jogadores cadastrados.\n");
@@ -63,7 +70,6 @@ static int buscar_indice_equipe(Equipe equipes[], int qtd_equipes, int id_equipe
 }
 
 int cadastrar_jogador(Jogador jogadores[], int *qtd_jogadores, char nick_jogador[50]) {
-
     int posicao = *qtd_jogadores;
     if (posicao >= MAX_JOGADORES) {
         return ERRO_CHEIO;
@@ -102,5 +108,32 @@ int remover_jogador(Jogador jogadores[], int *qtd_jogadores, int id_jogador) {
         jogadores[i] = jogadores[i+1];
     }
     (*qtd_jogadores)--;
+    return OK;
+}
+
+int cadastrar_equipe(Equipe equipes[], int *qtd_equipes, char nome_equipe[50]) {
+    int posicao = *qtd_equipes;
+    if (posicao >= MAX_EQUIPES) {
+        return ERRO_CHEIO;
+    } else if (nome_equipe[0] == '\0') {
+        return ERRO_INVALIDO;
+    }
+    for (int i = 0; i < posicao; i++) {
+        if (strcmp(nome_equipe, equipes[i].nome_equipe) == 0) {
+            return ERRO_DUPLICADO;
+        }
+    }
+
+    int id = banco_inserir_equipe(nome_equipe);
+    if (id < 0) {
+        return ERRO_BANCO;
+    }
+
+    equipes[posicao].id_equipe = id;
+    strncpy(equipes[posicao].nome_equipe, nome_equipe, 49);
+    equipes[posicao].nome_equipe[49] = '\0';
+    equipes[posicao].status_equipe = ATIVA;
+
+    (*qtd_equipes)++;
     return OK;
 }
