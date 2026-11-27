@@ -59,5 +59,7 @@ int registrar_partida(Partida partidas[], Equipe equipes[], int *qtd_partidas, i
 void listar_jogadores(Jogador jogadores[], int qtd_jogadores);
 void listar_equipes(Equipe equipes[], int qtd_equipes);
 int calcular_pontuacao(int id_equipe, Partida partidas[], int qtd_partidas);
+void montar_matriz_resultados(int matriz[MAX_EQUIPES][MAX_EQUIPES], Equipe equipes[], int qtd_equipes, Partida partidas[], int qtd_partidas);
+void exibir_matriz_resultados(int matriz[MAX_EQUIPES][MAX_EQUIPES], Equipe equipes[], int qtd_equipes);
 
 #endif

@@ -232,3 +232,45 @@ int calcular_pontuacao(int id_equipe, Partida partidas[], int qtd_partidas) {
     }
     return total;
 }
+
+void montar_matriz_resultados(int matriz[MAX_EQUIPES][MAX_EQUIPES], Equipe equipes[], int qtd_equipes, Partida partidas[], int qtd_partidas) {
+    for (int i = 0; i < qtd_equipes; i++) {
+        for (int j = 0; j < qtd_equipes; j++) {
+            matriz[i][j] = 0;
+        }
+    }
+
+    for (int p = 0; p < qtd_partidas; p++) {
+        int posicaoA = buscar_indice_equipe(equipes, qtd_equipes, partidas[p].id_equipeA);
+        int posicaoB = buscar_indice_equipe(equipes, qtd_equipes, partidas[p].id_equipeB);
+        if (posicaoA < 0 || posicaoB < 0) {
+            continue;
+        }
+
+        if (partidas[p].placarA > partidas[p].placarB) {
+            matriz[posicaoA][posicaoB] += PONTOS_VITORIA;
+            matriz[posicaoB][posicaoA] += PONTOS_DERROTA;
+        } else if (partidas[p].placarA == partidas[p].placarB) {
+            matriz[posicaoA][posicaoB] += PONTOS_EMPATE;
+            matriz[posicaoB][posicaoA] += PONTOS_EMPATE;
+        } else {
+            matriz[posicaoA][posicaoB] += PONTOS_DERROTA;
+            matriz[posicaoB][posicaoA] += PONTOS_VITORIA;
+        }
+    }
+}
+
+void exibir_matriz_resultados(int matriz[MAX_EQUIPES][MAX_EQUIPES], Equipe equipes[], int qtd_equipes) {
+    printf("\nMATRIZ DE RESULTADOS (linha fez contra coluna)\n      ");
+    for (int j = 0; j < qtd_equipes; j++) {
+        printf("%5d", equipes[j].id_equipe);
+    }
+    printf("\n");
+    for (int i = 0; i < qtd_equipes; i++) {
+        printf("%5d ", equipes[i].id_equipe);
+        for (int j = 0; j < qtd_equipes; j++) {
+            printf("%5d", matriz[i][j]);
+        }
+        printf("\n");
+    }
+}
