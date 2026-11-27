@@ -62,6 +62,4 @@ Os resultados serão registrados após a execução dos testes no programa integ
 
 ## Referências utilizadas na pesquisa
 
-- Documentação oficial da linguagem C.
-- Documentação oficial do MySQL.
-- Documentação do MySQL Connector/C.
+Próprio Curso de Algoritmos e Programação 2, Curso de Banco de dados, Documentação do PostgreSQL e ......
