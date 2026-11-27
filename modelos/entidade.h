@@ -23,7 +23,7 @@
 #define ERRO_NAO_ENCONTRADO -3
 #define ERRO_INVALIDO -4
 #define ERRO_BLOQUEADO -5
-#define ERRO_BANCO
+#define ERRO_BANCO -6
 
 typedef struct {
     int id_jogador;
