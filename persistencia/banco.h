@@ -1,5 +1,6 @@
 #ifndef BANCO_H
 #define BANCO_H
+#include "../modelos/entidade.h"
 
 int  banco_conectar(void);      /* se 0 = ok, se negativo = falhou */
 void banco_desconectar(void);
