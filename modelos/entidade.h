@@ -27,24 +27,39 @@
 
 typedef struct {
     int id_jogador;
+    char nome_completo[101];
     char nickname[50];
     int id_equipe;
 } Jogador;
 
 typedef struct {
     int id_equipe;
-    char nome_equipe[50];
-    int status_equipe;
+    char nome_equipe[101];
+    int num_jogadores;
 } Equipe;
 
 typedef struct {
-    int placarA;
-    int placarB;
+    double placarA;
+    double placarB;
     int id_equipeA;
     int id_equipeB;
     int rodada;
     int id_partida;
+    int id_campeonato;
+    int id_jogo;
 } Partida;
+
+typedef struct {
+    int id_equipe;
+    char nome_equipe[101];
+    int pontos;
+    int vitorias;
+    int empates;
+    int derrotas;
+    int jogos;
+    double pontos_pro;
+    double pontos_contra;
+} Classificacao;
 
 int cadastrar_jogador(Jogador jogadores[], int *qtd_jogadores, char nick_jogador[50]);
 int remover_jogador(Jogador jogadores[], int *qtd_jogadores, int id_jogador);
