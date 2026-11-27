@@ -5,17 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Campeonato de e-Sports</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/app.js" defer></script>
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-800">
   <header class="border-b border-slate-200 bg-white">
     <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-5">
       <div>
-        <h1 class="text-xl font-bold text-slate-900 sm:text-2xl">Campeonato de e-Sports</h1>
-        <p class="mt-1 text-sm text-slate-500">League of Legends <span class="px-1 text-slate-300">|</span> Pontos corridos</p>
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600">CAMPEONATO DE E-SPORTS</p>
+        <h1 class="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">ALGORITMOS E PROGRAMAÇÃO II</h1>
       </div>
-      <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
-        Em andamento
-      </span>
     </div>
   </header>
 
@@ -23,15 +21,15 @@
     <section aria-label="Resumo do campeonato" class="mb-6 grid overflow-hidden rounded-xl border border-slate-200 bg-white sm:grid-cols-3">
       <div class="px-5 py-4">
         <p class="text-sm text-slate-500">Equipes</p>
-        <p class="mt-1 text-xl font-semibold text-slate-900">4</p>
+        <p id="teams-count" class="mt-1 text-xl font-semibold text-slate-900">—</p>
       </div>
       <div class="border-t border-slate-200 px-5 py-4 sm:border-l sm:border-t-0">
-        <p class="text-sm text-slate-500">Partidas realizadas</p>
-        <p class="mt-1 text-xl font-semibold text-slate-900">12</p>
+        <p class="text-sm text-slate-500">Partidas registradas</p>
+        <p id="matches-count" class="mt-1 text-xl font-semibold text-slate-900">—</p>
       </div>
       <div class="border-t border-slate-200 px-5 py-4 sm:border-l sm:border-t-0">
-        <p class="text-sm text-slate-500">Rodada atual</p>
-        <p class="mt-1 text-xl font-semibold text-slate-900">6</p>
+        <p class="text-sm text-slate-500">Rodada mais recente</p>
+        <p id="latest-round" class="mt-1 text-xl font-semibold text-slate-900">—</p>
       </div>
     </section>
 
@@ -39,13 +37,12 @@
       <section aria-labelledby="ranking-titulo" class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div class="flex flex-wrap items-end justify-between gap-2 border-b border-slate-200 px-5 py-4">
           <div>
-            <h2 id="ranking-titulo" class="text-lg font-semibold text-slate-900">Classificação</h2>
-            <p class="mt-1 text-sm text-slate-500">Vitória: 3 pontos · Empate: 1 ponto</p>
+            <h2 id="ranking-titulo" class="text-lg font-semibold text-slate-900">Ranking de equipes</h2>
+            <p class="mt-1 text-sm text-slate-500">Pontuação calculada pelos resultados das partidas: vitória 3, empate 1</p>
           </div>
-          <p class="text-xs text-slate-400">Dados de exemplo</p>
         </div>
         <div class="overflow-x-auto">
-          <table class="w-full min-w-[560px] text-left text-sm">
+          <table class="w-full min-w-[600px] text-left text-sm">
             <thead class="bg-slate-50 text-xs font-medium uppercase tracking-wide text-slate-500">
               <tr>
                 <th scope="col" class="px-5 py-3">Pos.</th>
@@ -57,78 +54,38 @@
                 <th scope="col" class="px-5 py-3 text-right">PTS</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
-              <tr class="bg-blue-50/70">
-                <td class="px-5 py-4 font-semibold text-blue-700">1º</td>
-                <td class="px-3 py-4 font-semibold text-slate-900">LOUD</td>
-                <td class="px-3 py-4 text-center text-slate-600">6</td>
-                <td class="px-3 py-4 text-center text-slate-600">5</td>
-                <td class="px-3 py-4 text-center text-slate-600">0</td>
-                <td class="px-3 py-4 text-center text-slate-600">1</td>
-                <td class="px-5 py-4 text-right font-semibold text-slate-900">15</td>
-              </tr>
-              <tr class="hover:bg-slate-50">
-                <td class="px-5 py-4 text-slate-500">2º</td>
-                <td class="px-3 py-4 font-medium text-slate-900">FURIA</td>
-                <td class="px-3 py-4 text-center text-slate-600">6</td>
-                <td class="px-3 py-4 text-center text-slate-600">4</td>
-                <td class="px-3 py-4 text-center text-slate-600">1</td>
-                <td class="px-3 py-4 text-center text-slate-600">1</td>
-                <td class="px-5 py-4 text-right font-semibold text-slate-900">13</td>
-              </tr>
-              <tr class="hover:bg-slate-50">
-                <td class="px-5 py-4 text-slate-500">3º</td>
-                <td class="px-3 py-4 font-medium text-slate-900">paiN Gaming</td>
-                <td class="px-3 py-4 text-center text-slate-600">6</td>
-                <td class="px-3 py-4 text-center text-slate-600">3</td>
-                <td class="px-3 py-4 text-center text-slate-600">1</td>
-                <td class="px-3 py-4 text-center text-slate-600">2</td>
-                <td class="px-5 py-4 text-right font-semibold text-slate-900">10</td>
-              </tr>
-              <tr class="hover:bg-slate-50">
-                <td class="px-5 py-4 text-slate-500">4º</td>
-                <td class="px-3 py-4 font-medium text-slate-900">INTZ</td>
-                <td class="px-3 py-4 text-center text-slate-600">6</td>
-                <td class="px-3 py-4 text-center text-slate-600">2</td>
-                <td class="px-3 py-4 text-center text-slate-600">0</td>
-                <td class="px-3 py-4 text-center text-slate-600">4</td>
-                <td class="px-5 py-4 text-right font-semibold text-slate-900">6</td>
+            <tbody id="ranking-body" class="divide-y divide-slate-100">
+              <tr>
+                <td colspan="7" class="px-5 py-4 text-slate-500">Carregando ranking...</td>
               </tr>
             </tbody>
           </table>
         </div>
         <p class="border-t border-slate-200 px-5 py-3 text-xs text-slate-500">
-          J: jogos · V: vitórias · E: empates · D: derrotas
+          J: jogos · V: vitórias · E: empates · D: derrotas · PTS: pontos
         </p>
       </section>
 
       <section aria-labelledby="partidas-titulo" class="rounded-xl border border-slate-200 bg-white shadow-sm">
         <div class="border-b border-slate-200 px-5 py-4">
-          <h2 id="partidas-titulo" class="text-lg font-semibold text-slate-900">Últimas partidas</h2>
-          <p class="mt-1 text-sm text-slate-500">Rodada 6</p>
+          <h2 id="partidas-titulo" class="text-lg font-semibold text-slate-900">Resultados recentes</h2>
+          <p class="mt-1 text-sm text-slate-500">Partida e resultados por equipe</p>
         </div>
-        <div class="divide-y divide-slate-100">
-          <div class="flex items-center justify-between gap-3 px-5 py-4">
-            <div>
-              <p class="font-medium text-slate-900">LOUD <span class="font-normal text-slate-400">x</span> FURIA</p>
-              <p class="mt-1 text-xs text-slate-500">Partida encerrada</p>
-            </div>
-            <p class="whitespace-nowrap rounded-md bg-slate-100 px-3 py-1.5 font-semibold text-slate-800">2 x 1</p>
-          </div>
-          <div class="flex items-center justify-between gap-3 px-5 py-4">
-            <div>
-              <p class="font-medium text-slate-900">paiN <span class="font-normal text-slate-400">x</span> INTZ</p>
-              <p class="mt-1 text-xs text-slate-500">Partida encerrada</p>
-            </div>
-            <p class="whitespace-nowrap rounded-md bg-slate-100 px-3 py-1.5 font-semibold text-slate-800">1 x 0</p>
-          </div>
+        <div id="recent-matches" class="divide-y divide-slate-100" aria-live="polite">
+          <p class="px-5 py-4 text-sm text-slate-500">Carregando partidas...</p>
         </div>
       </section>
     </div>
 
-    <footer class="mt-6 text-center text-xs text-slate-400">
-      Prévia visual do projeto acadêmico · Os dados são ilustrativos
-    </footer>
+    <section aria-labelledby="modelo-titulo" class="mt-6 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+      <h2 id="modelo-titulo" class="text-lg font-semibold text-slate-900">Dados do modelo</h2>
+      <div class="mt-3 grid gap-3 text-sm sm:grid-cols-3">
+        <p><span class="font-medium text-slate-800">Equipes</span><br><span class="text-slate-500">Nome e jogadores vinculados</span></p>
+        <p><span class="font-medium text-slate-800">Partidas</span><br><span class="text-slate-500">Rodada, campeonato e jogo</span></p>
+        <p><span class="font-medium text-slate-800">Resultados</span><br><span class="text-slate-500">Placar, kills, mortes, dano e cura por equipe</span></p>
+      </div>
+    </section>
+
   </main>
 </body>
 </html>

@@ -1,347 +1,288 @@
+#include <errno.h>
+#include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include "algoritmos/busca.h"
+#include "algoritmos/ordenacao.h"
+#include "modelos/entidade.h"
 #include "persistencia/banco.h"
 
-typedef struct {
-    int id_equipe;
-    char nome_equipe[101];
-    int pontos;
-    int vitorias;
-    int empates;
-    int derrotas;
-    int jogos;
-    int pontos_pro;
-    int pontos_contra;
-} Classificacao;
-
-int ler_inteiro(char mensagem[], int *valor)
+static int ler_linha(const char *mensagem, char texto[], size_t capacidade)
 {
+    size_t tamanho;
     int caractere;
+
+    printf("%s", mensagem);
+    if (fgets(texto, (int)capacidade, stdin) == NULL) {
+        return 0;
+    }
+
+    tamanho = strlen(texto);
+    if (tamanho > 0 && texto[tamanho - 1] == '\n') {
+        texto[--tamanho] = '\0';
+    } else if (!feof(stdin)) {
+        while ((caractere = getchar()) != '\n' && caractere != EOF) {
+        }
+        fprintf(stderr, "Entrada excede o limite permitido.\n");
+        return 0;
+    }
+
+    if (tamanho > 0 && texto[tamanho - 1] == '\r') {
+        texto[--tamanho] = '\0';
+    }
+    return 1;
+}
+
+static int ler_inteiro(const char *mensagem, int *valor)
+{
+    char texto[128];
+    char *fim;
+    long numero;
 
     while (1) {
-        printf("%s", mensagem);
-        if (scanf("%d", valor) != 1) {
-            while ((caractere = getchar()) != '\n' && caractere != EOF) {
-            }
-            if (caractere == EOF) {
-                return 0;
-            }
-            printf("Entrada invalida. Digite um numero inteiro.\n");
-        } else {
-            while ((caractere = getchar()) != '\n' && caractere != EOF) {
-            }
-            return 1;
-        }
-    }
-}
-
-int nomes_iguais(char nomeA[], char nomeB[])
-{
-    int i = 0;
-
-    while (nomeA[i] != '\0' && nomeB[i] != '\0') {
-        if (nomeA[i] != nomeB[i]) {
+        if (!ler_linha(mensagem, texto, sizeof(texto))) {
             return 0;
         }
-        i++;
+        errno = 0;
+        numero = strtol(texto, &fim, 10);
+        if (errno == 0 && fim != texto && *fim == '\0' &&
+            numero >= -2147483647L - 1 && numero <= 2147483647L) {
+            *valor = (int)numero;
+            return 1;
+        }
+        printf("Entrada invalida. Digite um numero inteiro.\n");
     }
-
-    return nomeA[i] == nomeB[i];
 }
 
-int buscar_equipe_binaria(Equipe equipes[], int quantidade, int id)
+static int ler_decimal(const char *mensagem, double *valor)
 {
-    int inicio = 0;
-    int fim = quantidade - 1;
+    char texto[128];
+    char *fim;
+    double centavos;
 
-    while (inicio <= fim) {
-        int meio = (inicio + fim) / 2;
-
-        if (equipes[meio].id_equipe == id) {
-            return meio;
+    while (1) {
+        if (!ler_linha(mensagem, texto, sizeof(texto))) {
+            return 0;
         }
-        if (equipes[meio].id_equipe < id) {
-            inicio = meio + 1;
-        } else {
-            fim = meio - 1;
+        errno = 0;
+        *valor = strtod(texto, &fim);
+        centavos = *valor * 100.0;
+        if (errno == 0 && fim != texto && *fim == '\0' &&
+            isfinite(*valor) && fabs(*valor) <= 99999999.99 &&
+            fabs(centavos - floor(centavos + 0.5)) < 1e-8) {
+            return 1;
         }
+        printf("Digite um numero com ate duas casas decimais.\n");
     }
-
-    return -1;
 }
 
-int cadastrar_equipe_menu(PGconn *conexao, Equipe equipes[],
-                          int *quantidade)
+static int cadastrar_equipe_menu(PGconn *conexao, Equipe equipes[],
+                                 int *quantidade)
 {
     char nome[101];
-    int num_jogadores;
     int id_equipe;
-    int i;
-    int caractere;
+    int indice;
 
-    if (*quantidade == 100) {
+    if (*quantidade >= MAX_EQUIPES) {
         printf("Limite de equipes atingido.\n");
         return 1;
     }
-
-    printf("Nome da equipe (sem espacos): ");
-    if (scanf("%100s", nome) != 1) {
+    if (!ler_linha("Nome da equipe: ", nome, sizeof(nome))) {
         return 0;
     }
-    while ((caractere = getchar()) != '\n' && caractere != EOF) {
-    }
-
-    for (i = 0; i < *quantidade; i++) {
-        if (nomes_iguais(equipes[i].nome_equipe, nome)) {
-            printf("Ja existe uma equipe com esse nome.\n");
-            return 1;
-        }
-    }
-
-    if (!ler_inteiro("Numero de jogadores: ", &num_jogadores)) {
-        return 0;
-    }
-    if (num_jogadores < 0) {
-        printf("O numero de jogadores nao pode ser negativo.\n");
+    if (nome[0] == '\0') {
+        printf("O nome da equipe nao pode ficar vazio.\n");
         return 1;
     }
-
-    if (!banco_salvar_equipe(conexao, nome, num_jogadores, &id_equipe)) {
+    indice = buscar_equipe_por_nome(equipes, *quantidade, nome);
+    if (indice >= 0) {
+        printf("Ja existe uma equipe com esse nome.\n");
+        return 1;
+    }
+    if (indice != ERRO_NAO_ENCONTRADO) {
+        fprintf(stderr, "Nao foi possivel validar o nome da equipe.\n");
+        return 0;
+    }
+    if (!banco_salvar_equipe(conexao, nome, &id_equipe)) {
         return 1;
     }
 
     equipes[*quantidade].id_equipe = id_equipe;
-    equipes[*quantidade].num_jogadores = num_jogadores;
-    i = 0;
-    while (nome[i] != '\0') {
-        equipes[*quantidade].nome_equipe[i] = nome[i];
-        i++;
-    }
-    equipes[*quantidade].nome_equipe[i] = '\0';
-
+    strcpy(equipes[*quantidade].nome_equipe, nome);
+    equipes[*quantidade].num_jogadores = 0;
+    (*quantidade)++;
+    ordenar_equipes_por_id(equipes, *quantidade);
     printf("Equipe cadastrada no banco com ID %d.\n", id_equipe);
-    *quantidade = *quantidade + 1;
     return 1;
 }
 
-void listar_equipes_menu(Equipe equipes[], int quantidade)
-{
-    int i;
-
-    if (quantidade == 0) {
-        printf("Nenhuma equipe cadastrada.\n");
-        return;
-    }
-
-    printf("\n--- EQUIPES ---\n");
-    for (i = 0; i < quantidade; i++) {
-        printf("ID %d | %s | Jogadores: %d\n",
-               equipes[i].id_equipe, equipes[i].nome_equipe,
-               equipes[i].num_jogadores);
-    }
-}
-
-int registrar_partida_menu(PGconn *conexao, Partida partidas[],
-                           int *quantidade_partidas, Equipe equipes[],
-                           int quantidade_equipes)
+static int registrar_partida_menu(PGconn *conexao, Partida partidas[],
+                                  int *quantidade_partidas,
+                                  Equipe equipes[], int quantidade_equipes)
 {
     Partida partida;
-    int idA;
-    int idB;
-    int resultado;
     int quantidade_campeonatos;
     int quantidade_jogos;
+    int indice_a;
+    int indice_b;
 
     if (quantidade_equipes < 2) {
         printf("Cadastre pelo menos duas equipes antes de registrar partidas.\n");
         return 1;
     }
-    if (*quantidade_partidas == 1000) {
+    if (*quantidade_partidas >= MAX_PARTIDAS) {
         printf("Limite de partidas atingido.\n");
         return 1;
     }
 
     quantidade_campeonatos = banco_listar_campeonatos(conexao);
-    if (quantidade_campeonatos < 0) {
+    if (quantidade_campeonatos <= 0) {
+        if (quantidade_campeonatos == 0) {
+            printf("Cadastre um campeonato no banco antes de registrar partidas.\n");
+        }
         return 1;
     }
-    if (quantidade_campeonatos == 0) {
-        printf("Cadastre um campeonato no banco antes de registrar partidas.\n");
-        return 1;
-    }
-
     quantidade_jogos = banco_listar_jogos(conexao);
-    if (quantidade_jogos < 0) {
-        return 1;
-    }
-    if (quantidade_jogos == 0) {
-        printf("Cadastre um jogo no banco antes de registrar partidas.\n");
+    if (quantidade_jogos <= 0) {
+        if (quantidade_jogos == 0) {
+            printf("Cadastre um jogo no banco antes de registrar partidas.\n");
+        }
         return 1;
     }
 
-    listar_equipes_menu(equipes, quantidade_equipes);
-    if (!ler_inteiro("ID do campeonato: ", &partida.id_campeonato)) return 0;
-    if (!ler_inteiro("ID do jogo: ", &partida.id_jogo)) return 0;
-    if (!ler_inteiro("ID da equipe A: ", &idA)) return 0;
-    if (!ler_inteiro("ID da equipe B: ", &idB)) return 0;
+    listar_equipes(equipes, quantidade_equipes);
+    if (!ler_inteiro("ID do campeonato: ", &partida.id_campeonato) ||
+        !ler_inteiro("ID do jogo: ", &partida.id_jogo) ||
+        !ler_inteiro("ID da equipe A: ", &partida.id_equipeA) ||
+        !ler_inteiro("ID da equipe B: ", &partida.id_equipeB)) {
+        return 0;
+    }
 
-    if (buscar_equipe_binaria(equipes, quantidade_equipes, idA) == -1 ||
-        buscar_equipe_binaria(equipes, quantidade_equipes, idB) == -1) {
+    indice_a = buscar_equipe_por_id(equipes, quantidade_equipes,
+                                    partida.id_equipeA);
+    indice_b = buscar_equipe_por_id(equipes, quantidade_equipes,
+                                    partida.id_equipeB);
+    if (indice_a < 0 || indice_b < 0) {
         printf("ID de equipe nao encontrado.\n");
         return 1;
     }
-    if (idA == idB) {
+    if (partida.id_equipeA == partida.id_equipeB) {
         printf("Uma equipe nao pode jogar contra ela mesma.\n");
         return 1;
     }
-
-    partida.id_equipeA = idA;
-    partida.id_equipeB = idB;
-    if (!ler_inteiro("Placar da equipe A: ", &partida.placarA)) return 0;
-    if (!ler_inteiro("Placar da equipe B: ", &partida.placarB)) return 0;
-    if (!ler_inteiro("Rodada: ", &partida.rodada)) return 0;
-
+    if (!ler_decimal("Placar da equipe A: ", &partida.placarA) ||
+        !ler_decimal("Placar da equipe B: ", &partida.placarB) ||
+        !ler_inteiro("Rodada: ", &partida.rodada)) {
+        return 0;
+    }
     if (partida.placarA < 0 || partida.placarB < 0 || partida.rodada < 1) {
-        printf("Os placares nao podem ser negativos e a rodada deve ser maior que zero.\n");
+        printf("Os placares nao podem ser negativos e a rodada deve ser positiva.\n");
         return 1;
     }
 
     if (!banco_salvar_partida(conexao, &partida)) {
         return 1;
     }
-
     partidas[*quantidade_partidas] = partida;
-    *quantidade_partidas = *quantidade_partidas + 1;
+    (*quantidade_partidas)++;
     printf("Partida registrada no banco com ID %d.\n", partida.id_partida);
     return 1;
 }
 
-int montar_classificacao(Equipe equipes[], int quantidade_equipes,
-                        Partida partidas[], int quantidade_partidas,
-                        Classificacao classificacao[])
+static int montar_classificacao(Equipe equipes[], int quantidade_equipes,
+                                Partida partidas[], int quantidade_partidas,
+                                Classificacao classificacao[])
 {
     int i;
     int j;
 
     for (i = 0; i < quantidade_equipes; i++) {
+        memset(&classificacao[i], 0, sizeof(classificacao[i]));
         classificacao[i].id_equipe = equipes[i].id_equipe;
-        for (j = 0; j < 101; j++) {
-            classificacao[i].nome_equipe[j] = equipes[i].nome_equipe[j];
-            if (equipes[i].nome_equipe[j] == '\0') {
-                break;
-            }
+        strcpy(classificacao[i].nome_equipe, equipes[i].nome_equipe);
+        classificacao[i].pontos = calcular_pontuacao(
+            equipes[i].id_equipe, partidas, quantidade_partidas);
+        if (classificacao[i].pontos < 0) {
+            fprintf(stderr, "Falha ao calcular a pontuacao da equipe.\n");
+            return 0;
         }
-        classificacao[i].pontos = 0;
-        classificacao[i].vitorias = 0;
-        classificacao[i].empates = 0;
-        classificacao[i].derrotas = 0;
-        classificacao[i].jogos = 0;
-        classificacao[i].pontos_pro = 0;
-        classificacao[i].pontos_contra = 0;
     }
 
     for (i = 0; i < quantidade_partidas; i++) {
-        int equipeA = buscar_equipe_binaria(equipes, quantidade_equipes,
-                                           partidas[i].id_equipeA);
-        int equipeB = buscar_equipe_binaria(equipes, quantidade_equipes,
-                                           partidas[i].id_equipeB);
+        int equipe_a = buscar_equipe_por_id(
+            equipes, quantidade_equipes, partidas[i].id_equipeA);
+        int equipe_b = buscar_equipe_por_id(
+            equipes, quantidade_equipes, partidas[i].id_equipeB);
 
-        if (equipeA == -1 || equipeB == -1) {
-            continue;
+        if (equipe_a < 0 || equipe_b < 0) {
+            fprintf(stderr,
+                    "A partida %d referencia uma equipe que nao foi carregada.\n",
+                    partidas[i].id_partida);
+            return 0;
         }
 
-        classificacao[equipeA].jogos++;
-        classificacao[equipeB].jogos++;
-        classificacao[equipeA].pontos_pro += partidas[i].placarA;
-        classificacao[equipeA].pontos_contra += partidas[i].placarB;
-        classificacao[equipeB].pontos_pro += partidas[i].placarB;
-        classificacao[equipeB].pontos_contra += partidas[i].placarA;
+        classificacao[equipe_a].jogos++;
+        classificacao[equipe_b].jogos++;
+        classificacao[equipe_a].pontos_pro += partidas[i].placarA;
+        classificacao[equipe_a].pontos_contra += partidas[i].placarB;
+        classificacao[equipe_b].pontos_pro += partidas[i].placarB;
+        classificacao[equipe_b].pontos_contra += partidas[i].placarA;
 
         if (partidas[i].placarA > partidas[i].placarB) {
-            classificacao[equipeA].vitorias++;
-            classificacao[equipeA].pontos += 3;
-            classificacao[equipeB].derrotas++;
-        } else if (partidas[i].placarA < partidas[i].placarB) {
-            classificacao[equipeB].vitorias++;
-            classificacao[equipeB].pontos += 3;
-            classificacao[equipeA].derrotas++;
+            classificacao[equipe_a].vitorias++;
+            classificacao[equipe_b].derrotas++;
+        } else if (partidas[i].placarB > partidas[i].placarA) {
+            classificacao[equipe_b].vitorias++;
+            classificacao[equipe_a].derrotas++;
         } else {
-            classificacao[equipeA].empates++;
-            classificacao[equipeB].empates++;
-            classificacao[equipeA].pontos += 1;
-            classificacao[equipeB].pontos += 1;
+            classificacao[equipe_a].empates++;
+            classificacao[equipe_b].empates++;
         }
     }
 
-    return quantidade_equipes;
-}
-
-int equipe_depois(Classificacao equipeA, Classificacao equipeB)
-{
-    int saldoA = equipeA.pontos_pro - equipeA.pontos_contra;
-    int saldoB = equipeB.pontos_pro - equipeB.pontos_contra;
-
-    if (equipeA.pontos != equipeB.pontos) {
-        return equipeA.pontos < equipeB.pontos;
-    }
-    if (equipeA.vitorias != equipeB.vitorias) {
-        return equipeA.vitorias < equipeB.vitorias;
-    }
-    if (saldoA != saldoB) {
-        return saldoA < saldoB;
-    }
-    if (equipeA.pontos_pro != equipeB.pontos_pro) {
-        return equipeA.pontos_pro < equipeB.pontos_pro;
-    }
-    return equipeA.id_equipe > equipeB.id_equipe;
-}
-
-void ordenar_bubble(Classificacao classificacao[], int quantidade)
-{
-    int i;
-    int j;
-
-    for (i = 0; i < quantidade - 1; i++) {
-        for (j = 0; j < quantidade - i - 1; j++) {
-            if (equipe_depois(classificacao[j], classificacao[j + 1])) {
-                Classificacao temporaria = classificacao[j];
-                classificacao[j] = classificacao[j + 1];
-                classificacao[j + 1] = temporaria;
-            }
+    for (j = 0; j < quantidade_equipes; j++) {
+        if (classificacao[j].vitorias + classificacao[j].empates +
+            classificacao[j].derrotas != classificacao[j].jogos) {
+            fprintf(stderr, "Dados inconsistentes ao montar o ranking.\n");
+            return 0;
         }
     }
+    return 1;
 }
 
-void exibir_ranking(Equipe equipes[], int quantidade_equipes,
-                    Partida partidas[], int quantidade_partidas)
+static int exibir_ranking(Equipe equipes[], int quantidade_equipes,
+                          Partida partidas[], int quantidade_partidas)
 {
-    Classificacao classificacao[100];
-    int quantidade = montar_classificacao(equipes, quantidade_equipes,
-                                          partidas, quantidade_partidas,
-                                          classificacao);
+    Classificacao classificacao[MAX_EQUIPES];
     int i;
 
-    if (quantidade == 0) {
+    if (quantidade_equipes == 0) {
         printf("Cadastre equipes para visualizar o ranking.\n");
-        return;
+        return 1;
+    }
+    if (!montar_classificacao(equipes, quantidade_equipes, partidas,
+                              quantidade_partidas, classificacao)) {
+        return 0;
     }
 
-    ordenar_bubble(classificacao, quantidade);
+    ordenar_ranking(classificacao, quantidade_equipes);
     printf("\n================ RANKING ================\n");
-    printf("POS ID  EQUIPE              PTS J  V  E  D  SALDO\n");
-    for (i = 0; i < quantidade; i++) {
-        int saldo = classificacao[i].pontos_pro -
-                    classificacao[i].pontos_contra;
-
-        printf("%3d %2d  %-18s %3d %2d %2d %2d %2d %6d\n",
+    printf("POS ID  EQUIPE                         PTS  J  V  E  D  SALDO\n");
+    for (i = 0; i < quantidade_equipes; i++) {
+        double saldo = classificacao[i].pontos_pro -
+                       classificacao[i].pontos_contra;
+        printf("%3d %3d %-29s %3d %2d %2d %2d %2d %7.2f\n",
                i + 1, classificacao[i].id_equipe,
                classificacao[i].nome_equipe, classificacao[i].pontos,
                classificacao[i].jogos, classificacao[i].vitorias,
                classificacao[i].empates, classificacao[i].derrotas, saldo);
     }
+    return 1;
 }
 
-void buscar_equipe_por_id_menu(Equipe equipes[], int quantidade)
+static void buscar_equipe_menu(Equipe equipes[], int quantidade)
 {
     int id;
     int indice;
@@ -349,71 +290,88 @@ void buscar_equipe_por_id_menu(Equipe equipes[], int quantidade)
     if (!ler_inteiro("Digite o ID da equipe: ", &id)) {
         return;
     }
-
-    indice = buscar_equipe_binaria(equipes, quantidade, id);
-    if (indice == -1) {
+    indice = buscar_equipe_por_id(equipes, quantidade, id);
+    if (indice == ERRO_NAO_ENCONTRADO) {
         printf("Equipe nao encontrada.\n");
+    } else if (indice < 0) {
+        fprintf(stderr, "Falha ao buscar equipe.\n");
     } else {
-        printf("Equipe encontrada: ID %d | %s\n",
-               equipes[indice].id_equipe, equipes[indice].nome_equipe);
+        printf("Equipe encontrada: ID %d | %s | %d jogador(es)\n",
+               equipes[indice].id_equipe, equipes[indice].nome_equipe,
+               equipes[indice].num_jogadores);
     }
 }
 
 int main(void)
 {
     PGconn *conexao = NULL;
-    Equipe equipes[100];
-    Partida partidas[1000];
+    Equipe equipes[MAX_EQUIPES];
+    Jogador jogadores[MAX_JOGADORES];
+    Partida partidas[MAX_PARTIDAS];
     int quantidade_equipes = 0;
+    int quantidade_jogadores = 0;
     int quantidade_partidas = 0;
-    int opcao = -1;
+    int opcao;
+    int continuar = 1;
 
     if (!banco_conectar(&conexao)) {
         return 1;
     }
-    if (!banco_carregar_equipes(conexao, equipes, 100, &quantidade_equipes) ||
-        !banco_carregar_partidas(conexao, partidas, 1000,
+    if (!banco_carregar_equipes(conexao, equipes, MAX_EQUIPES,
+                                &quantidade_equipes) ||
+        !banco_carregar_jogadores(conexao, jogadores, MAX_JOGADORES,
+                                  &quantidade_jogadores) ||
+        !banco_carregar_partidas(conexao, partidas, MAX_PARTIDAS,
                                  &quantidade_partidas)) {
         banco_desconectar(conexao);
         return 1;
     }
+    ordenar_equipes_por_id(equipes, quantidade_equipes);
 
-    printf("Conectado ao banco. Equipes e partidas carregadas.\n");
+    printf("Conectado ao banco. Equipes, jogadores e partidas carregados.\n");
     printf("CAMPEONATO DE E-SPORTS\n");
-
-    while (opcao != 0) {
+    while (continuar) {
         printf("\n1. Cadastrar equipe\n");
         printf("2. Listar equipes\n");
         printf("3. Registrar partida\n");
         printf("4. Exibir ranking\n");
         printf("5. Buscar equipe por ID\n");
+        printf("6. Listar jogadores\n");
         printf("0. Sair\n");
 
         if (!ler_inteiro("Escolha uma opcao: ", &opcao)) {
             break;
         }
-
-        if (opcao == 1) {
-            if (!cadastrar_equipe_menu(conexao, equipes, &quantidade_equipes)) {
-                break;
-            }
-        } else if (opcao == 2) {
-            listar_equipes_menu(equipes, quantidade_equipes);
-        } else if (opcao == 3) {
-            if (!registrar_partida_menu(conexao, partidas,
-                                        &quantidade_partidas, equipes,
-                                        quantidade_equipes)) {
-                break;
-            }
-        } else if (opcao == 4) {
-            exibir_ranking(equipes, quantidade_equipes,
-                           partidas, quantidade_partidas);
-        } else if (opcao == 5) {
-            buscar_equipe_por_id_menu(equipes, quantidade_equipes);
-        } else if (opcao == 0) {
+        switch (opcao) {
+        case 1:
+            continuar = cadastrar_equipe_menu(conexao, equipes,
+                                              &quantidade_equipes);
+            break;
+        case 2:
+            listar_equipes(equipes, quantidade_equipes);
+            break;
+        case 3:
+            continuar = registrar_partida_menu(
+                conexao, partidas, &quantidade_partidas, equipes,
+                quantidade_equipes);
+            break;
+        case 4:
+            continuar = exibir_ranking(equipes, quantidade_equipes, partidas,
+                                       quantidade_partidas);
+            break;
+        case 5:
+            buscar_equipe_menu(equipes, quantidade_equipes);
+            break;
+        case 6:
+            listar_jogadores(jogadores, quantidade_jogadores);
+            break;
+        case 0:
             printf("Encerrando o campeonato.\n");
-        } else {
+            continuar = 0;
+            break;
+        default:
             printf("Opcao invalida.\n");
+            break;
         }
     }
 

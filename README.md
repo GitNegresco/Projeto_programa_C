@@ -46,22 +46,23 @@ Referências utilizadas na pesquisa:
 
 Próprio Curso de Algoritmos e Programação 2, Curso de Banco de dados, Documentação do PostgreSQL e ......
 
-## Parte do Christian: ranking, busca, menu e persistência
+## Menu, ranking, busca e persistência
 
-O programa carrega equipes e partidas do PostgreSQL ao iniciar. Cadastros de equipes e resultados de partidas são gravados no banco; a classificação é calculada a partir dos resultados carregados.
+O programa carrega equipes, jogadores e partidas do PostgreSQL ao iniciar. As partidas são reconstruídas a partir dos registros de `Partidas` e dos dois resultados correspondentes em `Resultados`. O cadastro pelo menu grava a equipe, ou a partida e seus dois resultados, em uma transação.
 
-- A busca binária procura o ID da equipe em um vetor carregado em ordem crescente.
-- O ranking é organizado por Bubble Sort: pontos, vitórias, saldo, pontos pró e ID.
-- Vitória vale 3 pontos, empate vale 1 e derrota vale 0.
-- Para registrar uma partida, o menu pede o ID de um campeonato e de um jogo já cadastrados.
-- Cada partida grava uma linha em `Partidas` e duas linhas em `Resultados`, uma por equipe.
+- A busca binária procura o ID da equipe em um vetor ordenado por ID.
+- O ranking é calculado a partir dos placares em `Resultados`: vitória vale 3 pontos, empate vale 1 e derrota vale 0.
+- O Bubble Sort organiza o ranking por pontos, vitórias, saldo, pontos pró e ID da equipe.
+- Para registrar uma partida, selecione um campeonato e um jogo existentes, duas equipes diferentes, os placares e a rodada.
+- A quantidade de jogadores exibida por equipe é obtida contando as linhas relacionadas em `Jogadores`.
+- A página `visualizacao.html` carrega o painel pela API web, sem expor credenciais do PostgreSQL no navegador.
 
 ### Preparar o banco
 
-1. Crie um banco PostgreSQL vazio.
-2. Execute uma vez o script `persistencia/schema.sql`.
-3. Configure a variável de ambiente `DATABASE_URL` com a conexão do seu banco. Não coloque a senha no código nem a envie no repositório.
-4. Cadastre equipes pelo programa. Antes de registrar partidas, cadastre ao menos um jogo e um campeonato nas tabelas `jogos` e `campeonato`. O campeonato precisa referenciar uma equipe existente, conforme o esquema fornecido.
+1. Cada integrante instala o PostgreSQL e cria, pelo pgAdmin, seu próprio banco chamado `Campeonato_Esports`.
+2. Execute uma vez nesse banco o script `persistencia/schema.sql`. O banco fica na máquina de cada integrante; somente o script de esquema é compartilhado pelo Git.
+3. Configure `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` e `PGPASSWORD` no ambiente local. Use `PGDATABASE=Campeonato_Esports`. A senha deve ficar somente em `PGPASSWORD`, nunca no código nem no Git. Para a aplicação web, copie `.env.example` para `.env` e preencha os valores locais; `.env` está ignorado pelo Git.
+4. Cadastre as equipes pelo programa. Antes de registrar partidas, cadastre ao menos um jogo e um campeonato nas tabelas `jogos` e `campeonato`. O campeonato precisa referenciar uma equipe existente, conforme o esquema fornecido.
 
 Exemplo de dados iniciais (depois de cadastrar uma equipe de ID `1` pelo programa):
 
@@ -73,38 +74,67 @@ INSERT INTO campeonato (id_campeonato, nome_campeonato, formato, fk_equipes_id_e
 VALUES (1, 'Campeonato e-Sports', 'Pontos corridos', 1);
 ```
 
-Exemplo de configuração no PowerShell (substitua pelos dados locais do seu banco):
+Decisões do modelo:
 
-```powershell
-$env:DATABASE_URL = "postgresql://usuario:senha@localhost:5432/nome_do_banco"
-```
+- Jogador sem equipe deve ter `fk_Equipes_id_equipe = NULL`; não grave `-1` no banco.
+- Em cada partida, o resultado com menor `id_resultado` representa a equipe A; o seguinte representa a equipe B.
+- `Pontuacao` é atualizada pelo trigger criado em `schema.sql`; não atualize essa tabela manualmente.
 
 ### Compilar e executar
 
 É necessário ter o GCC e os arquivos de desenvolvimento do libpq instalados e disponíveis nos caminhos de include e biblioteca do compilador.
 
+Para conectar o programa C, configure as variáveis libpq no terminal. Exemplo no PowerShell (defina a senha localmente):
+
+```powershell
+$env:PGHOST = "localhost"
+$env:PGPORT = "5432"
+$env:PGDATABASE = "Campeonato_Esports"
+$env:PGUSER = "postgres"
+$env:PGPASSWORD = "defina-localmente"
+```
+
 Linux/macOS:
 
 ```text
-gcc -std=c99 -Wall -Wextra -pedantic main.c persistencia/banco.c -lpq -o campeonato
+gcc -std=c99 -Wall -Wextra -pedantic main.c algoritmos/busca.c algoritmos/ordenacao.c modelos/entidade.c persistencia/banco.c -lpq -lm -o campeonato
 ./campeonato
 ```
 
 Windows com MinGW:
 
 ```text
-gcc -std=c99 -Wall -Wextra -pedantic main.c persistencia\banco.c -lpq -o campeonato.exe
+gcc -std=c99 -Wall -Wextra -pedantic main.c algoritmos\busca.c algoritmos\ordenacao.c modelos\entidade.c persistencia\banco.c -lpq -lm -o campeonato.exe
 .\campeonato.exe
 ```
+
+### Executar a versão web
+
+A versão web usa Node.js 18 ou superior e não precisa do compilador C nem do libpq. O servidor Node atende a página e a rota `GET /api/dashboard`; a conexão com PostgreSQL é feita somente no servidor, usando `PGPASSWORD` e as demais variáveis `PG*` do arquivo `.env`. Também é aceita `DATABASE_URL` em ambientes hospedados.
+
+Para preparar uma vez em cada computador, com Node.js e PostgreSQL instalados:
+
+```powershell
+npm install
+Copy-Item .env.example .env
+# Edite .env com PGUSER e PGPASSWORD locais. Não compartilhe nem faça commit desse arquivo.
+npm start
+```
+
+Abra `http://localhost:3000`. Para apresentar sem instalar o compilador C ou o libpq, deixe PostgreSQL, Node.js, dependências e `.env` preparados antes; na apresentação, basta iniciar `npm start` e abrir o endereço local.
+
+Não abra o HTML por `file://`: a API precisa estar em execução. Nunca coloque a senha em `visualizacao.html`, `app.js` ou em qualquer arquivo versionado.
+
+Os testes da lógica de classificação podem ser executados com `npm test`.
 
 ### Regras de dados
 
 - O programa trabalha com até 100 equipes e 1000 partidas por execução.
-- Nomes digitados no menu não podem conter espaços.
-- Os placares são armazenados em `Resultados.resultado_partida` e devem ser inteiros.
+- Nomes de equipes podem conter espaços e devem ter até 100 caracteres.
+- Os placares são armazenados em `Resultados.resultado_partida` (`DECIMAL(10,2)`).
 - Cada partida precisa ter exatamente dois resultados para ser carregada no ranking.
-- O código usa `stdio.h`, libpq e o cabeçalho local `persistencia/banco.h`.
+- O código usa C99, libpq e os cabeçalhos locais em `persistencia/` e `modelos/`.
 
-### Prévia visual
+### Página web
 
-Abra [visualizacao.html](visualizacao.html) em um navegador para ver a proposta de interface. A página é uma prévia estática e usa dados ilustrativos; não está conectada ao programa C.
+O servidor Node entrega a interface em `http://localhost:3000` e atualiza o ranking e partidas a partir dos dados do PostgreSQL. A conexão é independente do programa C.
