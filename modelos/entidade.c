@@ -207,3 +207,28 @@ int registrar_partida(Partida partidas[], Equipe equipes[], int *qtd_partidas, i
     (*qtd_partidas)++;
     return OK;
 }
+
+int calcular_pontuacao(int id_equipe, Partida partidas[], int qtd_partidas) {
+    int total = 0;
+    for (int i = 0; i < qtd_partidas; i++) {
+        int meus, deles;
+        if (partidas[i].id_equipeA == id_equipe) {
+            meus = partidas[i].placarA;
+            deles = partidas[i].placarB;
+        } else if (partidas[i].id_equipeB == id_equipe) {
+            meus = partidas[i].placarB;
+            deles = partidas[i].placarA;
+        } else {
+            continue;
+        }
+
+        if (meus > deles) {
+            total += PONTOS_VITORIA;
+        } else if (meus == deles) {
+            total += PONTOS_EMPATE;
+        } else {
+            total += PONTOS_DERROTA;
+        }
+    }
+    return total;
+}
