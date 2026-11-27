@@ -1,140 +1,126 @@
-Projeto de Campeonato E-Sports
+# Projeto de Campeonato E-Sports
 
-Integrantes:
+## Integrantes
+
 - Christian Otto Ricarth (10253902)
 - Felipe Negreiros Souza (10771620)
 - João Manoel Pessoa Carneiro (10771808)
 - Lucas Prado Fernandes Cardozo (10771939)
 
-Descrição e principais funcionalidades:
+## Descrição e principais funcionalidades
 
-Organizar e definir os jogos, equipes, jogadores de cada equipe, pontuações, partidas e pontos do campeonato. Vai poder visualizar as tabelas de pontuação, equipes e a estrutura do campeonato como um todo, cadastrar os jogadores nas equipes, definir qual jogo e qual partida será realizada e montar as partidas pra um campeonato, o tipo de campeonato foi escolhido por pontos corridos (mais eficientes para aplicar matrizes e buscas).
+O projeto consiste no desenvolvimento de um sistema para organizar e gerenciar um campeonato de E-Sports no formato de pontos corridos, podendo ser escolhido o jogo e cadastrados e montadas as equipes no próprio sistema.
 
-Algoritmos implementados:
+O sistema permite organizar jogadores, equipes, partidas e pontuação do campeonato, além de possibilitar a consulta das pontuações e da classificação das equipes, além é claro de ter esses campos com validação.
 
-Linguagem C (projeto todo);
-Structs e arrays(vetores) (para cadastro de jogadores, formação de partidas, definição de jogo, preenchimento de critérios);
-Validações (para todos os dados inseridos nos campos corretos ou não);
-Buscas linear, binária (para selecionar e puxar os dados pedidos);  
-Matriz ou estrutura parecida (cálculo de pontuação do time talvez);
-Ordenação bubble (para percorrer vetores que armazenem dados ou estatísticas do jogador e organiza as tabelas);
-Ir colocando aqui quando for fazendo o projeto...
+Condicionais definidas pro sistema:
+Um jogador pertence a no máximo uma equipe. Remover a equipe deixa o jogador sem equipe.
+Uma equipe que já jogou partidas não pode ser removida.
+Vitória vale 3 pontos, empate 1 e derrota 0.
+Kills, mortes, dano e cura são totais da equipe em cada partida.
+A pontuacao é dado derivado de resultados e não deve ser alterada à mão.
+Os identificadores (id) são gerados pelo banco.
+Partidas sem campeonato ou jogo informados usam o campeonato e o jogo padrão criados pelo script.
+A ordenação do ranking é feita no programa em C, e não no banco.
 
-Banco de dados e bilbioteca/driver escolhido:
+## Algoritmos implementados
 
-Banco criado usando PostgreSQL, e a biblioteca libpq.
+- **Linguagem C:** utilizada no desenvolvimento do projeto.
+- **Estruturas e vetores:** utilizados para armazenar informações de jogadores, equipes e partidas.
+- **Validações de entrada:** funções para verificar os dados inseridos.
+- **Busca linear:** utilizada para localizar jogadores pelo nickname e equipes pelo nome.
+- **Busca binária:** prevista para localizar informações de forma otimizada.
+- **Ordenação bolha:** prevista para organizar dados e auxiliar na apresentação das classificações.
+- **Matrizes e estruturas:** utilizadas na organização das informações do campeonato.
 
-Justificativa pra escolha desse banco ou biblioteca:
+## Banco de dados e biblioteca/driver escolhido
 
-O PostgreSQL pois uma maior facilidade em fazer conexões e integrações para outras plataformas, algo que permite uma futuro aprimoramento do projeto a longo prazo se for desejado, algo que o MYSQL não proporcionaria de igual forma.
+- Banco de dados: PostgreSQL (schema testado no PostgreSQL 16 e executado no 19; funciona a partir da versão 14).
+- Biblioteca/driver: libpq, a biblioteca oficial em C do PostgreSQL (libpq-fe.h).
+- Linguagem de integração: C.
 
-Estrutura de tabelas:
+## Justificativa para escolha desse banco ou biblioteca
 
-Entidades (Jogador, Equipe, Partida, Criterios_pontuacao, Jogo, Campenato);
-jogador (CPF_id, nome completo, apelido, conta steam, telefone, funcao);
-Equipe (id_equipe, nome, FK CPF_jogador, numero_jogadores, pontuacao);
-Partida (FK id_equipes, id_partida, num_rodada, id_jogo);
-Jogo (id_jogo, nome, desenvolvedora, tipo_jogo);
-Criterios_pontuacao (vitoria, derrota, empate, num_kills, num_mortes, dano_cura_realizados);
-Campeonato (nome, quant_partidas, quant_equipes, formato, FK id_partidas, FK id_equipes);
+O PostgreSQL garante a integridade dos dados no próprio banco: chaves estrangeiras, UNIQUE e CHECK impedem, por exemplo, a mesma equipe duas vezes na mesma partida ou um placar negativo.
+A tabela pontuacao é mantida automaticamente por trigger, então o total de cada equipe se corrige sozinho quando um placar é alterado.
+A libpq é o driver oficial para C, instalado junto com o PostgreSQL, sem dependências extras.
+O banco é criado a partir de um único script (persistencia/schema.sql), o que torna a instalação reproduzível em qualquer computador.
 
-Instruções de Configuração, Compilação, e Execução:
+## Estrutura de tabelas
 
-As instruções de compilação e execução estão na seção "Parte do Christian: ranking, busca, menu e persistência".
+- **Jogador:** CPF, identificador, nome completo, apelido, conta Steam, telefone e função.
+- **Equipe:** identificador, nome, jogadores associados, quantidade de jogadores e pontuação.
+- **Partida:** identificador, equipes participantes, número da rodada e jogo relacionado.
+- **Jogo:** identificador, nome, desenvolvedora e tipo de jogo.
+- **Critérios de pontuação:** vitórias, derrotas, empates, eliminações, mortes e dados de desempenho.
+- **Campeonato:** nome, quantidade de partidas, quantidade de equipes, formato e partidas associadas.
 
-Referências utilizadas na pesquisa:
+## Instruções de configuração, compilação e execução
 
-Próprio Curso de Algoritmos e Programação 2, Curso de Banco de dados, Documentação do PostgreSQL e ......
 
-## Menu, ranking, busca e persistência
+Utilização do banco de dados Postgre:
+1. Instalar o PostgreSQL
+Instale o PostgreSQL (versão 14 ou superior) com o instalador oficial e anote a senha do usuário postgres. Mantenha a porta padrão (5432). O instalador já inclui o pgAdmin e a libpq. No caso do Linux, instale separadamente o pacote libpq-dev.
 
-O programa carrega equipes, jogadores e partidas do PostgreSQL ao iniciar. As partidas são reconstruídas a partir dos registros de `Partidas` e dos dois resultados correspondentes em `Resultados`. O cadastro pelo menu grava a equipe, ou a partida e seus dois resultados, em uma transação.
+2. Criar o banco Campeonato_Esports
+O nome precisa ser escrito exatamente assim, com maiúsculas.
+Pelo pgAdmin: botão direito em Databases → Create → Database... → nome Campeonato_Esports → Save. (modo recomendado e feito assim pela equipe)
+Se for pelo terminal use o comando:
+createdb -U postgres Campeonato_Esports
 
-- A busca binária procura o ID da equipe em um vetor ordenado por ID.
-- O ranking é calculado a partir dos placares em `Resultados`: vitória vale 3 pontos, empate vale 1 e derrota vale 0.
-- O Bubble Sort organiza o ranking por pontos, vitórias, saldo, pontos pró e ID da equipe.
-- Para registrar uma partida, selecione um campeonato e um jogo existentes, duas equipes diferentes, os placares e a rodada.
-- A quantidade de jogadores exibida por equipe é obtida contando as linhas relacionadas em `Jogadores`.
-- A página `visualizacao.html` carrega o painel pela API web, sem expor credenciais do PostgreSQL no navegador.
+3. Carregar o script
+Pelo pgAdmin: selecione o banco Campeonato_Esports, abra Tools → Query Tool, confirme que o título da aba mostra Campeonato_Esports, clique em Open File, escolha persistencia/schema.sql e execute (F5).
+Se for pelo terminal use o comando:
+psql -U postgres -d Campeonato_Esports -f persistencia/schema.sql
 
-### Preparar o banco
+Ao terminar, devem existir 8 tabelas e a view classificacao.
+Atenção: rodar o script de novo recria as tabelas e apaga todos os dados. (verificar como resgatar esses dados depois)
 
-1. Cada integrante instala o PostgreSQL e cria, pelo pgAdmin, seu próprio banco chamado `Campeonato_Esports`.
-2. Execute uma vez nesse banco o script `persistencia/schema.sql`. O banco fica na máquina de cada integrante; somente o script de esquema é compartilhado pelo Git.
-3. Configure `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` e `PGPASSWORD` no ambiente local. Use `PGDATABASE=Campeonato_Esports`. A senha deve ficar somente em `PGPASSWORD`, nunca no código nem no Git. Para a aplicação web, copie `.env.example` para `.env` e preencha os valores locais; `.env` está ignorado pelo Git.
-4. Cadastre as equipes pelo programa. Antes de registrar partidas, cadastre ao menos um jogo e um campeonato nas tabelas `jogos` e `campeonato`. O campeonato precisa referenciar uma equipe existente, conforme o esquema fornecido.
+4. Definir as variáveis de ambiente
+O programa lê o acesso ao banco das variáveis de ambiente. A senha nunca fica no código! (Execute um comando por vez)
+Windows (PowerShell):
+$env:PGUSER="postgres"
+$env:PGPASSWORD="sua_senha"
+$env:PGDATABASE="Campeonato_Esports"
 
-Exemplo de dados iniciais (depois de cadastrar uma equipe de ID `1` pelo programa):
+Linux:
+export PGUSER=postgres
+export PGPASSWORD=sua_senha
+export PGDATABASE=Campeonato_Esports
 
-```sql
-INSERT INTO jogos (id_jogo, nome, desenvolvedora, tipo_jogo)
-VALUES (1, 'League of Legends', 'Riot Games', 'MOBA');
+Se o PostgreSQL usar outra porta, defina também PGPORT. (no caso usamos a 5432 msm)
 
-INSERT INTO campeonato (id_campeonato, nome_campeonato, formato, fk_equipes_id_equipe)
-VALUES (1, 'Campeonato e-Sports', 'Pontos corridos', 1);
-```
+5. Compilar
+Substitua <arquivos .c do projeto> pelos arquivos-fonte do projeto, incluindo persistencia/banco.c, e ajuste o número da versão do PostgreSQL se necessário. (obs o MinGW-w64 foi instalado a parte, caso não tenha instale-o também)
+Windows (MinGW-w64 / MSYS2 UCRT64):
+gcc <arquivos .c do projeto> -o campeonato.exe -I "C:/Program Files/PostgreSQL/19/include" "C:/Program Files/PostgreSQL/19/bin/libpq.dll"
 
-Decisões do modelo:
+Linux:
+gcc <arquivos .c do projeto> -o campeonato -I$(pg_config --includedir) -lpq
 
-- Jogador sem equipe deve ter `fk_Equipes_id_equipe = NULL`; não grave `-1` no banco.
-- Em cada partida, o resultado com menor `id_resultado` representa a equipe A; o seguinte representa a equipe B.
-- `Pontuacao` é atualizada pelo trigger criado em `schema.sql`; não atualize essa tabela manualmente.
-
-### Compilar e executar
-
-É necessário ter o GCC e os arquivos de desenvolvimento do libpq instalados e disponíveis nos caminhos de include e biblioteca do compilador.
-
-Para conectar o programa C, configure as variáveis libpq no terminal. Exemplo no PowerShell (defina a senha localmente):
-
-```powershell
-$env:PGHOST = "localhost"
-$env:PGPORT = "5432"
-$env:PGDATABASE = "Campeonato_Esports"
-$env:PGUSER = "postgres"
-$env:PGPASSWORD = "defina-localmente"
-```
-
-Linux/macOS:
-
-```text
-gcc -std=c99 -Wall -Wextra -pedantic main.c algoritmos/busca.c algoritmos/ordenacao.c modelos/entidade.c persistencia/banco.c -lpq -lm -o campeonato
-./campeonato
-```
-
-Windows com MinGW:
-
-```text
-gcc -std=c99 -Wall -Wextra -pedantic main.c algoritmos\busca.c algoritmos\ordenacao.c modelos\entidade.c persistencia\banco.c -lpq -lm -o campeonato.exe
+6. Executar
+Windows (PowerShell): o programa precisa encontrar a libpq.dll.
+$env:Path += ";C:\Program Files\PostgreSQL\19\bin"
 .\campeonato.exe
-```
 
-### Executar a versão web
+Linux:
+./campeonato
 
-A versão web usa Node.js 18 ou superior e não precisa do compilador C nem do libpq. O servidor Node atende a página e a rota `GET /api/dashboard`; a conexão com PostgreSQL é feita somente no servidor, usando `PGPASSWORD` e as demais variáveis `PG*` do arquivo `.env`. Também é aceita `DATABASE_URL` em ambientes hospedados.
+## Testes
 
-Para preparar uma vez em cada computador, com Node.js e PostgreSQL instalados:
+Serão realizados testes para verificar:
 
-```powershell
-npm install
-Copy-Item .env.example .env
-# Edite .env com PGUSER e PGPASSWORD locais. Não compartilhe nem faça commit desse arquivo.
-npm start
-```
+- Busca de jogadores existentes e inexistentes.
+- Busca de equipes existentes e inexistentes.
+- Validação de entradas numéricas.
+- Validação de campos de texto vazios.
+- Verificação de valores fora dos limites permitidos.
 
-Abra `http://localhost:3000`. Para apresentar sem instalar o compilador C ou o libpq, deixe PostgreSQL, Node.js, dependências e `.env` preparados antes; na apresentação, basta iniciar `npm start` e abrir o endereço local.
+Os resultados serão registrados após a execução dos testes no programa integrado.
 
-Não abra o HTML por `file://`: a API precisa estar em execução. Nunca coloque a senha em `visualizacao.html`, `app.js` ou em qualquer arquivo versionado.
+## Referências utilizadas na pesquisa
 
-Os testes da lógica de classificação podem ser executados com `npm test`.
-
-### Regras de dados
-
-- O programa trabalha com até 100 equipes e 1000 partidas por execução.
-- Nomes de equipes podem conter espaços e devem ter até 100 caracteres.
-- Os placares são armazenados em `Resultados.resultado_partida` (`DECIMAL(10,2)`).
-- Cada partida precisa ter exatamente dois resultados para ser carregada no ranking.
-- O código usa C99, libpq e os cabeçalhos locais em `persistencia/` e `modelos/`.
-
-### Página web
-
-O servidor Node entrega a interface em `http://localhost:3000` e atualiza o ranking e partidas a partir dos dados do PostgreSQL. A conexão é independente do programa C.
+- Próprio Curso de Algoritmos e Programação 2.
+- Curso de Banco de dados.
+- Documentação oficial do PostgreSQL.
+- Documentação oficial do libpq.

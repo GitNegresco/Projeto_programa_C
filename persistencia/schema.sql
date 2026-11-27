@@ -1,8 +1,30 @@
-CREATE TABLE Equipes (
-    id_equipe INT NOT NULL,
-    Nome_equipe VARCHAR(100),
-    Num_jogadores INT,
-    PRIMARY KEY (id_equipe)
+-- Campeonato de E-Sports  |  schema.sql (FINAL)  |  PostgreSQL 14+
+--
+-- v4: contrato de persistencia/banco.h + tabela PONTUACAO (geral por equipe)
+--   - jogador tem id gerado (id_jogador);
+--   - jogador pode existir sem equipe (id_equipe NULL)
+--   - partida usa campeonato/jogo PADRAO (id 1) quando nao informados
+--   - pontuacao: 1 linha por equipe, mantida por trigger (nao precisa
+--     chamar nada pelo C)
+-- =====================================================================
+
+DROP VIEW     IF EXISTS classificacao;
+DROP TABLE    IF EXISTS pontuacao  CASCADE;
+DROP TABLE    IF EXISTS resultados CASCADE;
+DROP TABLE    IF EXISTS partidas   CASCADE;
+DROP TABLE    IF EXISTS participam CASCADE;
+DROP TABLE    IF EXISTS jogadores  CASCADE;
+DROP TABLE    IF EXISTS campeonato CASCADE;
+DROP TABLE    IF EXISTS jogos      CASCADE;
+DROP TABLE    IF EXISTS equipes    CASCADE;
+DROP FUNCTION IF EXISTS atualizar_pontuacao();
+
+-- ---------------------------------------------------------------------
+-- Tabelas independentes
+-- ---------------------------------------------------------------------
+CREATE TABLE equipes (
+    id_equipe    INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_equipe  VARCHAR(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE Jogos (
